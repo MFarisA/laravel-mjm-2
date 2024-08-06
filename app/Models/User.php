@@ -6,23 +6,27 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Permission\Traits\HasRoles;
+use BezhanSalleh\FilamentShield\Traits\HasPanelShield;
+use Filament\Models\Contracts\FilamentUser;
 
-class User extends Authenticatable
+class User extends Authenticatable 
 {
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasRoles;
+    // use HasPanelShield;
 
     /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
      */
+    
     protected $fillable = [
         'name',
         'email',
         'password',
-        'role',
+        // 'roles',
     ];
-
     /**
      * The attributes that should be hidden for serialization.
      *
@@ -44,5 +48,9 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function projects(){
+        return $this->belongsToMany(Project::class, 'project_assigns')->withTimestamps();
     }
 }

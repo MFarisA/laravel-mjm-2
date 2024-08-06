@@ -20,6 +20,7 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
 use App\Filament\Auth\Login;
 
 use Saade\FilamentFullCalendar\FilamentFullCalendarPlugin;
+use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -35,20 +36,21 @@ class AdminPanelProvider extends PanelProvider
             ->brandLogo(asset('logo/LOGO_MJM_2.png'))
             ->passwordReset() 
             ->emailVerification() 
+            ->databaseNotifications()
             ->profile() 
             ->font('Poppins')
             ->colors([
                 'primary' => Color::Amber,
             ])
+            ->plugin(FilamentShieldPlugin::make())
+            ->plugin(FilamentFullCalendarPlugin::make())
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
                 Pages\Dashboard::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
-            ->widgets([
-                
-            ])
+            ->widgets([])
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
@@ -62,9 +64,6 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-            ])
-            ->plugin(
-                FilamentFullCalendarPlugin::make()
-            );
+            ]);
     }
 }
