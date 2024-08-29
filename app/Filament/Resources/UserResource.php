@@ -33,10 +33,15 @@ class UserResource extends Resource
                     ->password()
                     ->required(),
                 // Using CheckboxList Component
-                Forms\Components\CheckboxList::make('roles')
+                // Forms\Components\CheckboxList::make('roles')
+                //     ->relationship('roles', 'name')
+                //     // ->searchable()
+                //     ->required(),
+                Forms\Components\Select::make('roles')
                     ->relationship('roles', 'name')
-                    ->searchable()
+                    ->native(false)
                     ->required(),
+                    
             ]);
     }
 

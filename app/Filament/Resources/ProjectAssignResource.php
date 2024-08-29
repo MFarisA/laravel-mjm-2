@@ -57,34 +57,40 @@ class ProjectAssignResource extends Resource
     }
 
     public static function table(Table $table): Table
-    {
-        return $table
-            ->modifyQueryUsing(fn (Builder $query) => $query->where('user_id', auth()->id()))
-            // ->modifyQueryUsing(function (Builder $query){
-            //     $user = auth()->id();
-            //     $project = ProjectAssign::where('user_id', $user)->first
-            // })
-            ->groups([
-                'project.nama_perusahaan',
-            ])
-            ->columns([
-                Tables\Columns\TextColumn::make('project.nama_perusahaan'),
-                Tables\Columns\TextColumn::make('project.quantity')
-                    ->label('Quantity'),
-                Tables\Columns\TextColumn::make('project.jenis_pekerjaan')
-                    ->label('Jenis Pekerjaan'),
-                Tables\Columns\TextColumn::make('project.deadline')
-                    ->label('Deadline'),
-                Tables\Columns\TextColumn::make('user.name')
-                    ->listWithLineBreaks(),
-            ])
-            ->filters([
-                //
-            ])
-            ->actions([
-                // Tables\Actions\EditAction::make(),
-            ]);
+{
+    return $table
+        // ->modifyQueryUsing(fn (Builder $query) => $query->where('user_id', auth()->id()))
+        ->modifyQueryUsing(function (Builder $query) {
+            $user = auth()->id();
+            $project = ProjectAssign::where('user_id', $user)->first();
+
+            if ($project) {
+                $query->where('project_id', $project->id);
+            }
+
+            return $query;
+        })
+        ->columns([
+            Tables\Columns\TextColumn::make('project.nama_perusahaan')
+                ->label('Nama Perusahaan'),
+            Tables\Columns\TextColumn::make('project.quantity')
+                ->label('Quantity'),
+            Tables\Columns\TextColumn::make('project.jenis_pekerjaan')
+                ->label('Jenis Pekerjaan'),
+            Tables\Columns\TextColumn::make('project.deadline')
+                ->label('Deadline'),
+            Tables\Columns\TextColumn::make('user.name')
+                ->label('User Name')
+                ->listWithLineBreaks(),
+        ])
+        ->filters([
+            // Tambahkan filter jika diperlukan
+        ])
+        ->actions([
+            // Tables\Actions\EditAction::make(), // Uncomment jika ingin menambahkan aksi edit
+        ]);
     }
+
 
 
     public static function getRelations(): array

@@ -23,6 +23,7 @@ use Filament\Tables\Actions\CreateAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\TextInput;
 use phpDocumentor\Reflection\PseudoTypes\Numeric_;
+use Filament\Forms\Components\Textarea;
 
 use Filament\Infolists\Infolist;
 use Filament\Infolists\Components\TextEntry;
@@ -63,7 +64,8 @@ class ProjectResource extends Resource
                 Forms\Components\TextInput::make('quantity')
                     ->required()
                     ->numeric(),
-                    Forms\Components\TextInput::make('deskripsi')
+                Forms\Components\Textarea::make('deskripsi')
+                    ->rows(3)
                     ->required(),
                 Forms\Components\TextInput::make('jenis_pekerjaan')
                     ->required(),
@@ -86,7 +88,6 @@ class ProjectResource extends Resource
         return $table
         ->query(Project::query())
         // ->modifyQueryUsing(fn (Builder $query) => $query->where('users.user_id', auth()->id()))
-
         // ->modifyQueryUsing(fn (Builder $query) => $query->where('users->name', $data['user_id'] = auth()->id()))
         // ->modifyQueryUsing(function (Builder $query) {
         //     $query->whereHas('nama_perusahaan', function (Builder $query) {
