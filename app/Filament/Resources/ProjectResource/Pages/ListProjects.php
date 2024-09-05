@@ -16,4 +16,5 @@ class ListProjects extends ListRecords
             Actions\CreateAction::make(),
         ];
     }
+
 }

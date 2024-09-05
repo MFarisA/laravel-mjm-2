@@ -25,6 +25,8 @@ class EventResource extends Resource
             ->schema([
                 Forms\Components\TextInput::make('title')
                     ->required(),
+                Forms\Components\TextInput::make('deskripsi')
+                    ->required(),
                 Forms\Components\DateTimePicker::make('start')
                     ->required(),
                 Forms\Components\DateTimePicker::make('end'),

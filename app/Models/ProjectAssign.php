@@ -17,6 +17,10 @@ class ProjectAssign extends Pivot {
         return $this->belongsTo(Project::class);
     }
 
+    public function item(){
+        return $this->belongsTo(Item::class);
+    }
+
     public function user(){
         return $this->belongsTo(User::class);
     }

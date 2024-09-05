@@ -11,25 +11,20 @@ class Project extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'nama_perusahaan',
-        // 'users',
-        'quantity',
-        'deskripsi',
-        'jenis_pekerjaan',
-        'deadline',
-        'picture',
-    ];
+    protected $guarded = ['id'];
+    // protected $fillable = [
+    //     'nama_perusahaan',
+    //     // 'users',
+    //     'quantity',
+    //     'deskripsi',
+    //     'jenis_pekerjaan',
+    //     'deadline',
+    //     'picture',
+    // ];
 
-    public function users(){
-        return $this->belongsToMany(User::class, 'project_assigns')->withTimestamps();
+    public function items(){
+        return $this->belongsToMany(Item::class)->withTimestamps();
     }
+    
 
-
-    protected function casts(): array
-    {
-        return [
-            'users' => 'array',
-        ];
-    }
 }

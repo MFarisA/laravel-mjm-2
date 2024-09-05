@@ -35,7 +35,7 @@ class Login extends BaseAuth
     }
 
 
-    protected function getFormActions(): array
+    public function getFormActions(): array
     {
         return [
             $this->getAuthenticateFormAction(),

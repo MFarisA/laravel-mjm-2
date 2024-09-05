@@ -6,6 +6,7 @@ use App\Filament\Exports\ProjectExporter;
 use App\Filament\Resources\ProjectAssignResource\RelationManagers\UserRelationManager as RelationManagersUserRelationManager;
 use App\Filament\Resources\ProjectResource\Pages;
 use App\Filament\Resources\ProjectResource\RelationManagers;
+use App\Filament\Resources\ProjectResource\RelationManagers\ItemsRelationManager;
 use App\Filament\Resources\ProjectResource\RelationManagers\ProjectAssignRelationManager;
 use App\Filament\Resources\ProjectResource\RelationManagers\UserRelationManager;
 use App\Filament\Resources\ProjectResource\RelationManagers\UsersRelationManager;
@@ -43,11 +44,11 @@ class ProjectResource extends Resource
     {
         return $infolist
             ->schema([
-                TextEntry::make('nama_perusahaan'),
-                // TextEntry::make('users'),
-                TextEntry::make('quantity'),
+                TextEntry::make('order'),
+                TextEntry::make('perusahaan'),
                 TextEntry::make('deskripsi'),
-                TextEntry::make('jenis_pekerjaan'),
+                TextEntry::make('supervisor'),
+                TextEntry::make('quantity'),
                 TextEntry::make('deadline'),
                 TextEntry::make('status'),
                 ImageEntry::make('picture')
@@ -59,20 +60,28 @@ class ProjectResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('nama_perusahaan')
+                Forms\Components\TextInput::make('order')
+                    ->required(),
+                Forms\Components\TextInput::make('perusahaan')
+                    ->required(),
+                Forms\Components\Textarea::make('deskripsi')
+                    ->rows(3)
+                    ->required(),
+                Forms\Components\TextInput::make('supervisor')
                     ->required(),
                 Forms\Components\TextInput::make('quantity')
                     ->required()
                     ->numeric(),
-                Forms\Components\Textarea::make('deskripsi')
-                    ->rows(3)
-                    ->required(),
-                Forms\Components\TextInput::make('jenis_pekerjaan')
-                    ->required(),
                 Forms\Components\DatePicker::make('deadline')
                     ->required(),
-                Forms\Components\TextInput::make('status')
-                    ->required(),
+                Forms\Components\Select::make('status')
+                    ->native(false)
+                    ->required()
+                    ->options([
+                        'pending' => 'Pending',
+                        'ongoing' => 'Ongoing',
+                        'finished' => 'Finished',
+                    ]),
                 Forms\Components\FileUpload::make('picture')
                     ->required()
                     ->imageEditor()
@@ -95,18 +104,16 @@ class ProjectResource extends Resource
         //     });
         // })
         ->columns([
-            Tables\Columns\TextColumn::make('nama_perusahaan')
+            Tables\Columns\TextColumn::make('perusahaan')
                 ->searchable(),
             Tables\Columns\TextColumn::make('quantity')
                 ->numeric()
                 ->sortable(),
-            Tables\Columns\TextColumn::make('jenis_pekerjaan')
-                ->searchable(),
-            Tables\Columns\TextColumn::make('z')
-                ->searchable(),
             Tables\Columns\TextColumn::make('deadline')
                 ->date()
                 ->sortable(),
+            Tables\Columns\TextColumn::make('status')
+                ->searchable(),
             Tables\Columns\TextColumn::make('created_at')
                 ->dateTime()
                 ->sortable()
@@ -128,19 +135,19 @@ class ProjectResource extends Resource
                 Tables\Actions\ViewAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                // Tables\Actions\BulkActionGroup::make([
+                // ]),
+                Tables\Actions\DeleteBulkAction::make(),
                 ExportBulkAction::make()->exporter(ProjectExporter::class)
             ]);
     }
 
-    public static function getRelations(): array
-    {
-        return [
-            UsersRelationManager::class
-        ];
-    }
+    // public static function getRelations(): array
+    // {
+    //     return [
+    //         ItemsRelationManager::class
+    //     ];
+    // }
 
     public static function getPages(): array
     {
