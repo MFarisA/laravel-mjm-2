@@ -61,14 +61,14 @@ class ItemsRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('machine_no'),
                 Tables\Columns\TextColumn::make('job_desk'),
                 Tables\Columns\TextColumn::make('ref'),
-                Tables\Columns\ImageColumn::make('picure')
+                Tables\Columns\ImageColumn::make('picture')
             ])
             ->filters([
                 //
             ])
             ->headerActions([
                 Tables\Actions\CreateAction::make(),
-                Tables\Actions\AttachAction::make(),
+                Tables\Actions\AttachAction::make()
             ])
             ->actions([
                 // Tables\Actions\EditAction::make(),

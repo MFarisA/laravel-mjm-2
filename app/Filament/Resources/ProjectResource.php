@@ -3,16 +3,11 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Exports\ProjectExporter;
-use App\Filament\Resources\ProjectAssignResource\RelationManagers\UserRelationManager as RelationManagersUserRelationManager;
 use App\Filament\Resources\ProjectResource\Pages;
 use App\Filament\Resources\ProjectResource\RelationManagers;
 use App\Filament\Resources\ProjectResource\RelationManagers\ItemsRelationManager;
-use App\Filament\Resources\ProjectResource\RelationManagers\ProjectAssignRelationManager;
-use App\Filament\Resources\ProjectResource\RelationManagers\UserRelationManager;
-use App\Filament\Resources\ProjectResource\RelationManagers\UsersRelationManager;
+
 use App\Models\Project;
-use App\Models\ProjectAssign;
-use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -124,8 +119,7 @@ class ProjectResource extends Resource
                 ->toggleable(isToggledHiddenByDefault: true),
         ])
             ->filters([
-                // Tables\Filters\SelectFilter::make('users.name')
-                //     ->options(User::all()->pluck('id', 'name')->toArray())
+                //
             ])
             ->headerActions([
                 ExportAction::make()->exporter(ProjectExporter::class)
