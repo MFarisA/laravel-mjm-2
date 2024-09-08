@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 
 class Item extends Model
 {
@@ -11,18 +12,18 @@ class Item extends Model
 
     protected $guarded = ['id'];
 
-    public function users(){
-        return $this->belongsToMany(User::class, 'project_assigns')->withTimestamps();
+    public function user(){
+        return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function projects(){
-        return $this->belongsToMany(Project::class, 'project_assigns')->withTimestamps();
+    public function project(){
+        return $this->belongsToMany(Project::class, 'project_item')->withTimestamps();
     }
 
     protected function casts(): array
     {
         return [
-            'users' => 'array',
+            'projects' => 'array',
         ];
     }
 }

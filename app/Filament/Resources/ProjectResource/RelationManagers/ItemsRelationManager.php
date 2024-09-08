@@ -18,28 +18,62 @@ class ItemsRelationManager extends RelationManager
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('operator_name')
+                Forms\Components\Select::make('project_id')  
+                    ->label('Project')
+                    // ->required()
+                    ->multiple()
+                    // ->columns(2) 
+                    ->relationship('project', 'perusahaan')
+                    ->searchable(),
+                Forms\Components\Select::make('user_id')  
+                    ->label('User')
                     ->required()
-                    ->maxLength(255),
+                    ->relationship('user', 'name')  
+                    ->searchable(),
+                Forms\Components\TextInput::make('operator_name')
+                    ->required(),
+                Forms\Components\TextInput::make('type_work')
+                    ->required(),
+                Forms\Components\TextInput::make('machine_no')
+                    ->required(),
+                Forms\Components\TextInput::make('job_desk')
+                    ->required(),
+                Forms\Components\TextInput::make('ref')
+                    ->required(),
+                Forms\Components\FileUpload::make('picture')
+                    ->required()
+                    ->imageEditor()
+                    ->imageCropAspectRatio('1:1')
+                    ->minSize(10)
+                    ->maxSize(100000)
+                    ->image(), 
             ]);
     }
 
     public function table(Table $table): Table
     {
         return $table
-            ->recordTitleAttribute('operator_name')
+            ->recordTitleAttribute('name')
             ->columns([
+                Tables\Columns\TextColumn::make('user.name'),
                 Tables\Columns\TextColumn::make('operator_name'),
+                Tables\Columns\TextColumn::make('type_work'),
+                Tables\Columns\TextColumn::make('machine_no'),
+                Tables\Columns\TextColumn::make('job_desk'),
+                Tables\Columns\TextColumn::make('ref'),
+                Tables\Columns\ImageColumn::make('picure')
             ])
             ->filters([
                 //
             ])
             ->headerActions([
                 Tables\Actions\CreateAction::make(),
+                Tables\Actions\AttachAction::make(),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                // Tables\Actions\EditAction::make(),
+                Tables\Actions\DetachAction::make(),
+                // Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

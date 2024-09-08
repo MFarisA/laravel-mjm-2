@@ -86,7 +86,7 @@ class ProjectResource extends Resource
                     ->required()
                     ->imageEditor()
                     ->imageCropAspectRatio('1:1')
-                    ->minSize(100)
+                    ->minSize(10)
                     ->maxSize(100000)
                     ->image(),    
             ]);
@@ -149,6 +149,13 @@ class ProjectResource extends Resource
     //     ];
     // }
 
+
+    public static function getRelations(): array
+{
+    return [
+        'items' => RelationManagers\ItemsRelationManager::class,
+    ];
+}
     public static function getPages(): array
     {
         return [

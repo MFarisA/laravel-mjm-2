@@ -12,18 +12,10 @@ class Project extends Model
     use HasFactory;
 
     protected $guarded = ['id'];
-    // protected $fillable = [
-    //     'nama_perusahaan',
-    //     // 'users',
-    //     'quantity',
-    //     'deskripsi',
-    //     'jenis_pekerjaan',
-    //     'deadline',
-    //     'picture',
-    // ];
-
-    public function items(){
-        return $this->belongsToMany(Item::class)->withTimestamps();
+    
+    public function items()
+    {
+        return $this->belongsToMany(Item::class, 'project_item')->withTimestamps();
     }
     
 
