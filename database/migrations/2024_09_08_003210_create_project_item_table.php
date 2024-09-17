@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('project_item', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('project_id')->constrained(); 
-            $table->foreignId('item_id')->constrained(); 
+            $table->foreignId('project_id')->constrained()->onDelete('cascade'); 
+            $table->foreignId('item_id')->constrained()->onDelete('cascade'); 
             $table->timestamps();
         });
     }

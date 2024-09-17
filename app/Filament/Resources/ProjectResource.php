@@ -29,6 +29,8 @@ use Filament\Tables\Actions\ExportBulkAction;
 
 use function Pest\Laravel\session;
 
+use Filament\Actions\DeleteAction;
+
 class ProjectResource extends Resource
 {
     protected static ?string $model = Project::class;
@@ -127,6 +129,7 @@ class ProjectResource extends Resource
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\ViewAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 // Tables\Actions\BulkActionGroup::make([
