@@ -16,9 +16,19 @@ class Item extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function project(){
+    public function projects(){
         return $this->belongsToMany(Project::class, 'project_item')->withTimestamps();
     }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function ($item) {
+            $item->projects()->detach();
+        });
+    }
+
 
     protected function casts(): array
     {

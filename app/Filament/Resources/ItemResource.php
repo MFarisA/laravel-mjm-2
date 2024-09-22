@@ -27,11 +27,9 @@ class ItemResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Select::make('project_id')  
-                    ->label('Project')
-                    // ->required()
+                    ->label('Projects')
                     ->multiple()
-                    // ->columns(2) 
-                    ->relationship('project', 'perusahaan')
+                    ->relationship('projects', 'perusahaan')
                     ->searchable(),
                 Forms\Components\Select::make('user_id')  
                     ->label('User')
@@ -62,8 +60,8 @@ class ItemResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('project.perusahaan')  
-                    ->label('Project')
+                Tables\Columns\TextColumn::make('projects.perusahaan')  
+                    ->label('Projects')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('user.name')  
                     ->label('User')

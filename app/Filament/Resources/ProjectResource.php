@@ -21,6 +21,7 @@ use Filament\Forms\Components\TextInput;
 use phpDocumentor\Reflection\PseudoTypes\Numeric_;
 use Filament\Forms\Components\Textarea;
 
+use Filament\Notifications\Notification;
 use Filament\Infolists\Infolist;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Components\ImageEntry;
@@ -129,11 +130,17 @@ class ProjectResource extends Resource
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\ViewAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\DeleteAction::make()
+                    ->action(function (Project $record) {
+                        $record->items()->update(['project_id' => null]);
+                        $record->delete();
+                        Notification::make()
+                        ->title('Project and associated items successfully unlinked and deleted.')
+                        ->success()
+                        ->send();
+                    }),
             ])
             ->bulkActions([
-                // Tables\Actions\BulkActionGroup::make([
-                // ]),
                 Tables\Actions\DeleteBulkAction::make(),
                 ExportBulkAction::make()->exporter(ProjectExporter::class)
             ]);

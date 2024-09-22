@@ -18,18 +18,20 @@ class ItemsRelationManager extends RelationManager
     {
         return $form
             ->schema([
-                Forms\Components\Select::make('project_id')  
-                    ->label('Project')
-                    // ->required()
-                    ->multiple()
-                    // ->columns(2) 
-                    ->relationship('project', 'perusahaan')
-                    ->searchable(),
+                Forms\Components\Hidden::make('project_id') 
+                    ->default($this->ownerRecord->id),
                 Forms\Components\Select::make('user_id')  
                     ->label('User')
                     ->required()
                     ->relationship('user', 'name')  
-                    ->searchable(),
+                    ->searchable()
+                    ->reactive() 
+                    ->afterStateUpdated(function ($state, callable $set) {
+                        $user = \App\Models\User::find($state);
+                        if ($user) {
+                            $set('operator_name', $user->name);
+                        }
+                    }),
                 Forms\Components\TextInput::make('operator_name')
                     ->required(),
                 Forms\Components\TextInput::make('type_work')
@@ -53,7 +55,7 @@ class ItemsRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
-            ->recordTitleAttribute('name')
+            ->recordTitleAttribute('operator_name')
             ->columns([
                 Tables\Columns\TextColumn::make('user.name'),
                 Tables\Columns\TextColumn::make('operator_name'),
@@ -61,7 +63,7 @@ class ItemsRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('machine_no'),
                 Tables\Columns\TextColumn::make('job_desk'),
                 Tables\Columns\TextColumn::make('ref'),
-                Tables\Columns\ImageColumn::make('picture')
+                Tables\Columns\ImageColumn::make('picture'),
             ])
             ->filters([
                 //
@@ -71,9 +73,7 @@ class ItemsRelationManager extends RelationManager
                 Tables\Actions\AttachAction::make()
             ])
             ->actions([
-                // Tables\Actions\EditAction::make(),
                 Tables\Actions\DetachAction::make(),
-                // Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

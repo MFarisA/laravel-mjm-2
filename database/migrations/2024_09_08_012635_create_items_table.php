@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('items', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('project_id')->nullable()->constrained();
+            $table->foreignId('project_id')->nullable()->constrained()->onDelete('set null');
             $table->foreignId('user_id')->constrained();
             $table->string('operator_name');
             $table->string('type_work');
