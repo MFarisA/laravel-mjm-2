@@ -67,14 +67,15 @@ class ItemResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('operator_name')
+                    ->label('Name')
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('projects.perusahaan')  
                     ->label('Projects')
                     ->sortable(),
-                Tables\Columns\TextColumn::make('user.name')  
-                    ->label('User')
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('operator_name')
-                    ->searchable(),
+                // Tables\Columns\TextColumn::make('user.name')  
+                //     ->label('User')
+                //     ->sortable(),
                 Tables\Columns\TextColumn::make('type_work')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('machine_no')

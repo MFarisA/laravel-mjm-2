@@ -79,7 +79,8 @@ class ProjectResource extends Resource
                         'pending' => 'Pending',
                         'ongoing' => 'Ongoing',
                         'finished' => 'Finished',
-                    ]),
+                    ])
+                    ->default('pending'),
                 Forms\Components\FileUpload::make('picture')
                     ->required()
                     ->imageEditor()
@@ -94,13 +95,6 @@ class ProjectResource extends Resource
     {
         return $table
         ->query(Project::query())
-        // ->modifyQueryUsing(fn (Builder $query) => $query->where('users.user_id', auth()->id()))
-        // ->modifyQueryUsing(fn (Builder $query) => $query->where('users->name', $data['user_id'] = auth()->id()))
-        // ->modifyQueryUsing(function (Builder $query) {
-        //     $query->whereHas('nama_perusahaan', function (Builder $query) {
-        //         return $query->where('user_id', auth()->id())->first;
-        //     });
-        // })
         ->columns([
             Tables\Columns\TextColumn::make('perusahaan')
                 ->searchable(),

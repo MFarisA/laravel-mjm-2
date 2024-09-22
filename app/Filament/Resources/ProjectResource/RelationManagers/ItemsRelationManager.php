@@ -57,8 +57,9 @@ class ItemsRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('operator_name')
             ->columns([
-                Tables\Columns\TextColumn::make('user.name'),
-                Tables\Columns\TextColumn::make('operator_name'),
+                // Tables\Columns\TextColumn::make('user.name'),
+                Tables\Columns\TextColumn::make('operator_name')
+                    ->label('Name'),
                 Tables\Columns\TextColumn::make('type_work'),
                 Tables\Columns\TextColumn::make('machine_no'),
                 Tables\Columns\TextColumn::make('job_desk'),
