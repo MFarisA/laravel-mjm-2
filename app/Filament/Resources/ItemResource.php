@@ -26,7 +26,7 @@ class ItemResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Select::make('project_id')  
+                Forms\Components\Select::make('projects')  
                     ->label('Projects')
                     ->multiple()
                     ->relationship('projects', 'perusahaan')
@@ -35,7 +35,14 @@ class ItemResource extends Resource
                     ->label('User')
                     ->required()
                     ->relationship('user', 'name')  
-                    ->searchable(),
+                    ->searchable()
+                    ->reactive() 
+                    ->afterStateUpdated(function ($state, callable $set) {
+                        $user = User::find($state);
+                        if ($user) {
+                            $set('operator_name', $user->name);
+                        }
+                    }),
                 Forms\Components\TextInput::make('operator_name')
                     ->required(),
                 Forms\Components\TextInput::make('type_work')
