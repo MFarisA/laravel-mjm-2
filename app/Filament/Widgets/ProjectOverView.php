@@ -11,7 +11,8 @@ class ProjectOverView extends BaseWidget
     protected function getStats(): array
     {
         return [
-            Stat::make('Project', Project::all()->count()),
+            Stat::make('Project', Project::all()->count())
+            ->url(route('filament.admin.resources.projects.index')),
         ];
     }
 }
