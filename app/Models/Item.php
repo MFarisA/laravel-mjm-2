@@ -27,6 +27,13 @@ class Item extends Model
         static::deleting(function ($item) {
             $item->projects()->detach();
         });
+
+        static::updating(function ($item) {
+            if ($item->isDirty('user_id')) { 
+                $user = $item->user; 
+                $item->operator_name = $user ? $user->name : null; 
+            }
+        });
     }
 
 

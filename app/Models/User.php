@@ -50,7 +50,18 @@ class User extends Authenticatable
         ];
     }
 
-    public function items(){
-        return $this->belongsToMany(Item::class, 'items')->withTimestamps();
+    public function item()
+    {
+        return $this->hasOne(Item::class);
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+        static::updating(function ($user) {
+            if ($user->isDirty('name')) {
+                $user->items()->update(['operator_name' => $user->name]);
+            }
+        });
     }
 }

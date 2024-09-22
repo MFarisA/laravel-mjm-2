@@ -31,12 +31,10 @@ class UserResource extends Resource
                 Forms\Components\DateTimePicker::make('email_verified_at'),
                 Forms\Components\TextInput::make('password')
                     ->password()
-                    ->required(),
-                // Using CheckboxList Component
-                // Forms\Components\CheckboxList::make('roles')
-                //     ->relationship('roles', 'name')
-                //     // ->searchable()
-                //     ->required(),
+                    ->dehydrateStateUsing(fn ($state) => !empty($state) ? bcrypt($state) : null)  // Encrypt password if set
+                    ->dehydrated(fn ($state) => filled($state))  // Only dehydrate if the password field is filled
+                    ->required(fn ($livewire) => $livewire instanceof Pages\CreateUser)  // Required only during create
+                    ->label(fn ($livewire) => $livewire instanceof Pages\EditUser ? 'New Password' : 'Password'),
                 Forms\Components\Select::make('roles')
                     ->relationship('roles', 'name')
                     ->native(false)
@@ -53,6 +51,8 @@ class UserResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('email')
                     ->searchable(),
+                Tables\Columns\TextColumn::make('roles.name')
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('email_verified_at')
                     ->dateTime()
                     ->sortable(),
@@ -64,8 +64,6 @@ class UserResource extends Resource
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('roles.name')
-                    ->searchable(),
             ])
             ->filters([
                 //
