@@ -27,7 +27,7 @@ use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Components\ImageEntry;
 use Filament\Tables\Actions\ExportAction;
 use Filament\Tables\Actions\ExportBulkAction;
-
+use Filament\Actions\Exports\Enums\ExportFormat;
 use function Pest\Laravel\session;
 
 use Filament\Actions\DeleteAction;
@@ -120,6 +120,9 @@ class ProjectResource extends Resource
             ])
             ->headerActions([
                 ExportAction::make()->exporter(ProjectExporter::class)
+            ->formats([
+                ExportFormat::Xlsx,
+                ])    
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

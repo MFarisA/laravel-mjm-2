@@ -23,6 +23,11 @@ class ProjectExporter extends Exporter
             ExportColumn::make('deadline'),
             ExportColumn::make('status'),
             ExportColumn::make('picture'),
+            ExportColumn::make('items.operator_name'),
+            ExportColumn::make('items.type_work'),
+            ExportColumn::make('items.machine_no'),
+            ExportColumn::make('items.job_desk'),
+            ExportColumn::make('items.ref'),
             // ExportColumn::make('item_titles'),
         ];
     }

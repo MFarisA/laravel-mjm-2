@@ -34,6 +34,7 @@ class AdminPanelProvider extends PanelProvider
             ->registration() 
             ->brandName('MJM Dashboard')
             ->brandLogo(asset('logo/LOGO_MJM_2.png'))
+            ->favicon(asset('logo/LOGO_MJM_2.png'))
             ->passwordReset() 
             ->emailVerification() 
             ->databaseNotifications()
