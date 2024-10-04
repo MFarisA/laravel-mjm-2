@@ -1,4 +1,4 @@
-<x-filament-panels::page>
+{{-- <x-filament-panels::page>
     <x-filament::section icon="heroicon-o-qr-code">
         <x-slot name="heading">
             Scanning
@@ -8,4 +8,10 @@
             Open camera
         </x-filament::button>
     </x-filament::section>
-</x-filament-panels::page>
+</x-filament-panels::page> --}}
+
+<x-filament::page>
+    {{-- <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script> --}}
+    <livewire:barcode-scanner />
+</x-filament::page>
+
