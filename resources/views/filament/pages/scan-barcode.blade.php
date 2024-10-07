@@ -1,17 +1,107 @@
-{{-- <x-filament-panels::page>
-    <x-filament::section icon="heroicon-o-qr-code">
-        <x-slot name="heading">
-            Scanning
-        </x-slot>
-    
-        <x-filament::button href="https://filamentphp.com" tag="a">
-            Open camera
-        </x-filament::button>
-    </x-filament::section>
-</x-filament-panels::page> --}}
-
-<x-filament::page>
-    {{-- <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script> --}}
+{{-- <x-filament::page>
     <livewire:barcode-scanner />
 </x-filament::page>
+ --}}
+
+ <!-- codenya yg tk comment bekerja jon -->
+{{-- <x-filament::page>
+    <button id="openCamera" class="px-4 py-2 bg-blue-500 text-white rounded">Open Camera</button>
+    <video id="video" width="300" height="200" autoplay></video>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#openCamera').click(function() {
+                // Send AJAX request to a Filament endpoint or API route
+                $.ajax({
+                    url: '{{ route("start-camera") }}',
+                    method: 'GET',
+                    success: function(response) {
+                        // If successful, trigger the camera
+                        startCamera();
+                    },
+                    error: function(err) {
+                        console.error("Error triggering camera: " + err);
+                    }
+                });
+            });
+
+            function startCamera() {
+                navigator.mediaDevices.getUserMedia({ video: true })
+                    .then(function(stream) {
+                        let video = document.getElementById('video');
+                        video.srcObject = stream;
+                    })
+                    .catch(function(err) {
+                        console.error("Error accessing camera: " + err);
+                    });
+            }
+        });
+    </script>
+</x-filament::page> --}}
+
+{{-- code dibwh ini juga bekerja, cuman lgi dalam tahap testing scan qr code --}}
+<x-filament::page>
+    <button id="openCamera" class="px-4 py-2 bg-blue-500 text-white rounded">Open Camera</button>
+  <video id="video" width="300" height="200" autoplay></video>
+  <p class=" bg-white" id="qrCodeResult"></p>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.2.0/dist/html5-qrcode.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#openCamera').click(function() {
+                // Send AJAX request to a Filament endpoint or API route
+                $.ajax({
+                    url: '{{ route("start-camera") }}',
+                    method: 'GET',
+                    success: function(response) {
+                        // If successful, trigger the camera
+                        startCamera();
+                    },
+                    error: function(err) {
+                        console.error("Error triggering camera: " + err);
+                    }
+                });
+            });
+
+            function startCamera() {
+        navigator.mediaDevices.getUserMedia({ video: true })
+          .then(function (stream) {
+            let video = document.getElementById('video');
+            video.srcObject = stream;  
+
+
+            // Initialize the QR code scanner
+            if (typeof Html5QrcodeScanner !== 'undefined') {
+              const html5QrcodeScanner = new Html5QrcodeScanner(
+                "video", { fps: 10, qrbox: { width: 250, height: 250 } }
+              );
+
+              // Define a callback function for successful scan
+              const onScanSuccess = (decodedText, decodedResult) => {
+                console.log(`Scanned QR code: ${decodedText}`, decodedResult);
+
+                // Display the scanned data on the page
+                const resultElement = document.getElementById('qrCodeResult');
+                resultElement.textContent = decodedText;
+
+                // Handle other actions based on the scanned data (e.g., redirect to a URL)
+                // ...
+              };
+
+              // Render the scanner and start listening for codes
+              html5QrcodeScanner.render(onScanSuccess);
+            } else {
+              console.warn("html5-qrcode library not found");
+            }
+          })
+          .catch(function (err) {
+            console.error("Error accessing camera: " + err);
+          });
+      }
+        });
+    </script>
+</x-filament::page>
+
 

@@ -3,17 +3,26 @@
     <div>
         <h3>Scanned Code: {{ $scannedCode }}</h3>
     </div>
-    <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script> 
     <script>
-        document.addEventListener('livewire:load', function () {
-            const html5QrcodeScanner = new Html5QrcodeScanner("reader", {
-                fps: 10,
-                qrbox: { width: 250, height: 250 }
-            });
+        // document.addEventListener('livewire:load', function () {
+        //     const html5QrcodeScanner = new Html5QrcodeScanner("reader", {
+        //         fps: 10,
+        //         qrbox: { width: 250, height: 250 }
+        //     });
 
-            html5QrcodeScanner.render((decodedText, decodedResult) => {
-                Livewire.emit('barcodeScanned', decodedText);
-            });
-        });
+        //     html5QrcodeScanner.render((decodedText, decodedResult) => {
+        //         Livewire.emit('barcodeScanned', decodedText);
+        //     });
+        // });
+
+        function onScanSuccess(decodedText, decodedResult) {
+    // Handle on success condition with the decoded text or result.
+    console.log(`Scan result: ${decodedText}`, decodedResult);
+}
+
+var html5QrcodeScanner = new Html5QrcodeScanner(
+	"reader", { fps: 10, qrbox: 250 });
+html5QrcodeScanner.render(onScanSuccess);
     </script>
 </div>
