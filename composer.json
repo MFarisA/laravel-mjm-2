@@ -15,6 +15,7 @@
         "psr/simple-cache": "^2.0",
         "pxlrbt/filament-excel": "^2.3",
         "saade/filament-fullcalendar": "^3.0",
+        "simplesoftwareio/simple-qrcode": "^4.2",
         "spatie/laravel-permission": "*"
     },
     "require-dev": {
