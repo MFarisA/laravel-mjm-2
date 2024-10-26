@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Auth;
 class GenerateLoginLink extends Page
 {
     protected static ?string $navigationIcon = 'heroicon-o-link';
-
+    protected static ?string $title = 'Generate link';
     protected static string $view = 'filament.pages.generate-login-link';
 
     public $loginLink;
@@ -27,5 +27,11 @@ class GenerateLoginLink extends Page
             'user' => $user->id,   // Pass the user's ID in the URL
             'token' => Str::random(40), // Generate a random token for security
         ]);
+    }
+
+    public function myAction()
+    {
+        // Your action logic
+        $this->notify('success', 'Button was clicked!');
     }
 }
