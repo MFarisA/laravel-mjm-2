@@ -9,14 +9,6 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
 
-Route::get('/qrcode')->name('qrcode');
-// Route::get('/qrcode', [QrCodeController::class, 'index'])->name('qrcode');
-
-// this route work for trigger camera
-Route::get('/start-camera', function () {
-    return response()->json(['message' => 'Camera started successfully']);
-})->name('start-camera');
-
 Route::get('/barcode', [BarcodeController::class, 'show'])->name('barcode');
 
 Route::middleware(['signed'])->group(function () {

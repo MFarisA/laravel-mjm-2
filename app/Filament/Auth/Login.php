@@ -26,33 +26,24 @@ class Login extends BaseAuth
             ),
         ];
     }
-    
-
-    public function barcodeAction(): Action
-    {
-        return Action::make('barcode')
-        ->url(fn (): string => route('barcode'));
-    }
-
 
     public function getFormActions(): array
     {
         return [
             $this->getAuthenticateFormAction(),
-            $this->barcodeAction(),
         ];
     }
 
-    protected function getBarcodeFormComponent(): Component
-    {
-        return TextInput::make('barcode')
-            ->label(__('filament-panels::pages/auth/login.form.email.label'))
-            ->email()
-            ->required()
-            ->autocomplete()
-            ->autofocus()
-            ->extraInputAttributes(['tabindex' => 1]);
-    }
+    // protected function getBarcodeFormComponent(): Component
+    // {
+    //     return TextInput::make('barcode')
+    //         ->label(__('filament-panels::pages/auth/login.form.email.label'))
+    //         ->email()
+    //         ->required()
+    //         ->autocomplete()
+    //         ->autofocus()
+    //         ->extraInputAttributes(['tabindex' => 1]);
+    // }
     
 }
 ?>
