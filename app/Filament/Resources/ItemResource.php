@@ -3,18 +3,18 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ItemResource\Pages;
-use App\Filament\Resources\ItemResource\RelationManagers;
 use App\Models\Item;
+use App\Models\Project;
+use App\Models\Useritem;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Models\Project;  
-use App\Models\User; 
+use App\Models\User;
+use Filament\Actions\DeleteAction;
 
+use App\Filament\Resources\ItemResource\RelationManagers;
 
 class ItemResource extends Resource
 {
@@ -26,40 +26,22 @@ class ItemResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Select::make('projects')  
-                    ->label('Projects')
-                    ->multiple()
-                    ->relationship('projects', 'perusahaan')
-                    ->searchable(),
-                Forms\Components\Select::make('user_id')  
-                    ->label('User')
-                    ->required()
-                    ->relationship('user', 'name')  
-                    ->searchable()
-                    ->reactive() 
-                    ->afterStateUpdated(function ($state, callable $set) {
-                        $user = User::find($state);
-                        if ($user) {
-                            $set('operator_name', $user->name);
-                        }
-                    }),
-                Forms\Components\TextInput::make('operator_name')
+                 Forms\Components\Select::make('project_id')
+                     ->label('Project')
+                     ->relationship('project', 'perusahaan')
+                     ->required()
+                     ->searchable(),
+                Forms\Components\TextInput::make('name')
+                    ->label('Name')
                     ->required(),
-                Forms\Components\TextInput::make('type_work')
-                    ->required(),
-                Forms\Components\TextInput::make('machine_no')
-                    ->required(),
-                Forms\Components\TextInput::make('job_desk')
-                    ->required(),
-                Forms\Components\TextInput::make('ref')
-                    ->required(),
-                Forms\Components\FileUpload::make('picture')
-                    ->required()
-                    ->imageEditor()
-                    ->imageCropAspectRatio('1:1')
-                    ->minSize(10)
-                    ->maxSize(100000)
-                    ->image(), 
+                Forms\Components\TextInput::make('description')
+                    ->label('Description')
+                    ->nullable(),
+                // Forms\Components\MultiSelect::make('useritems')
+                //     ->label('Useritems')
+                //     ->relationship('useritems', 'name')
+                //     ->searchable()
+                //     ->required(),
             ]);
     }
 
@@ -67,22 +49,17 @@ class ItemResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('operator_name')
+                Tables\Columns\TextColumn::make('name')
                     ->label('Name')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('projects.perusahaan')  
-                    ->label('Projects')
-                    ->sortable(),
-                // Tables\Columns\TextColumn::make('user.name')  
-                //     ->label('User')
+                // Tables\Columns\TextColumn::make('project.perusahaan')
+                //     ->label('Project')
                 //     ->sortable(),
-                Tables\Columns\TextColumn::make('type_work')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('machine_no')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('job_desk')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('ref')
+                // Tables\Columns\TextColumn::make('useritems.name')
+                //     ->label('Useritems')
+                //     ->sortable(),
+                Tables\Columns\TextColumn::make('description')
+                    ->label('Description')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
@@ -107,16 +84,16 @@ class ItemResource extends Resource
     }
 
     public static function getRelations(): array
-    {
-        return [
-            //
-        ];
-    }
+{
+    return [
+        'useritems' => RelationManagers\UseritemsRelationManager::class,
+    ];
+}
 
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListItems::route('/'),   
+            'index' => Pages\ListItems::route('/'),
             'create' => Pages\CreateItem::route('/create'),
             'edit' => Pages\EditItem::route('/{record}/edit'),
         ];

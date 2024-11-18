@@ -5,16 +5,17 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
-{           
+{
     /**
      * Run the migrations.
      */
     public function up(): void
     {
-        Schema::create('project_item', function (Blueprint $table) {
+        Schema::create('items', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('project_id')->constrained()->onDelete('cascade'); 
-            $table->foreignId('item_id')->constrained()->onDelete('cascade'); 
+            $table->foreignId('project_id')->constrained()->onDelete('cascade');
+            $table->string('name');
+            $table->text('description')->nullable();
             $table->timestamps();
         });
     }
@@ -24,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('project_item');
+        Schema::dropIfExists('items');
     }
 };

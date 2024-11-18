@@ -50,9 +50,9 @@ class User extends Authenticatable
         ];
     }
 
-    public function item()
+    public function useritem()
     {
-        return $this->hasOne(Item::class);
+        return $this->hasOne(Useritem::class);
     }
 
     protected static function boot()
@@ -60,7 +60,7 @@ class User extends Authenticatable
         parent::boot();
         static::updating(function ($user) {
             if ($user->isDirty('name')) {
-                $user->items()->update(['operator_name' => $user->name]);
+                $user->useritems()->update(['operator_name' => $user->name]);
             }
         });
     }

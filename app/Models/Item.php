@@ -4,20 +4,23 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\Pivot;
+use Illuminate\Database\Eloquent\Builder;
+
 
 class Item extends Model
 {
     use HasFactory;
 
     protected $guarded = ['id'];
-
-    public function user(){
-        return $this->belongsTo(User::class, 'user_id');
+    
+    public function project()
+    {
+        return $this->belongsTo(Project::class);
     }
-
-    public function projects(){
-        return $this->belongsToMany(Project::class, 'project_item')->withTimestamps();
+    
+    public function useritems()
+    {
+        return $this->belongsToMany(Useritem::class, 'item_useritem')->withTimestamps();
     }
 
     protected static function boot()
@@ -25,22 +28,8 @@ class Item extends Model
         parent::boot();
 
         static::deleting(function ($item) {
-            $item->projects()->detach();
+            $item->useritems()->detach();
         });
-
-        static::updating(function ($item) {
-            if ($item->isDirty('user_id')) { 
-                $user = $item->user; 
-                $item->operator_name = $user ? $user->name : null; 
-            }
-        });
-    }
-
-
-    protected function casts(): array
-    {
-        return [
-            'projects' => 'array',
-        ];
     }
 }
+

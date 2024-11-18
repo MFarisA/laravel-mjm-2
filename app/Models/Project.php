@@ -15,7 +15,7 @@ class Project extends Model
     
     public function items()
     {
-        return $this->belongsToMany(Item::class, 'project_item')->withTimestamps();
+        return $this->hasMany(Item::class);
     }
 
     protected static function boot()
@@ -23,7 +23,7 @@ class Project extends Model
         parent::boot();
 
         static::deleting(function ($project) {
-            $project->items()->detach();
+            $project->items->each->delete(); 
         });
     }
 }
