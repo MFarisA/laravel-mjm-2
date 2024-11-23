@@ -97,6 +97,7 @@ class UseritemResource extends Resource
                 //
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
@@ -119,6 +120,7 @@ class UseritemResource extends Resource
             'index' => Pages\ListUseritems::route('/'),
             'create' => Pages\CreateUseritem::route('/create'),
             'edit' => Pages\EditUseritem::route('/{record}/edit'),
+            'view' => Pages\ViewUseritem::route('/{record}'),
         ];
     }
 }

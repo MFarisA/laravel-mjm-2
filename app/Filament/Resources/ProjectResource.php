@@ -143,13 +143,6 @@ class ProjectResource extends Resource
             ]);
     }
 
-    // public static function getRelations(): array
-    // {
-    //     return [
-    //         ItemsRelationManager::class
-    //     ];
-    // }
-
 
     public static function getRelations(): array
 {

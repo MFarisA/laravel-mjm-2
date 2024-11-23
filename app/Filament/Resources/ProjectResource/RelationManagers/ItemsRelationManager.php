@@ -9,6 +9,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\ItemResource;
 
 class ItemsRelationManager extends RelationManager
 {
@@ -46,7 +47,14 @@ class ItemsRelationManager extends RelationManager
                 Tables\Actions\CreateAction::make()
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\Action::make('view')
+                    ->label('View')
+                    ->url(fn ($record) => ItemResource::getUrl('view', ['record' => $record->id]))
+                    ->icon('heroicon-o-eye'),
+                Tables\Actions\Action::make('edit')
+                    ->label('Edit')
+                    ->url(fn ($record) => ItemResource::getUrl('edit', ['record' => $record->id]))
+                    ->icon('heroicon-o-pencil'),
             ])
             ->bulkActions([
                 Tables\Actions\DeleteBulkAction::make(),
