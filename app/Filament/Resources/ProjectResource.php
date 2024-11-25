@@ -118,12 +118,7 @@ class ProjectResource extends Resource
             ->filters([
                 //
             ])
-            ->headerActions([
-                ExportAction::make()->exporter(ProjectExporter::class)
-            ->formats([
-                ExportFormat::Xlsx,
-                ])    
-            ])
+            ->headerActions([])
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\ViewAction::make(),
@@ -139,7 +134,6 @@ class ProjectResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\DeleteBulkAction::make(),
-                ExportBulkAction::make()->exporter(ProjectExporter::class)
             ]);
     }
 
