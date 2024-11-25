@@ -3,6 +3,7 @@
 namespace App\Exports;
 
 use App\Models\Project;
+use App\Models\Useritem;
 use Maatwebsite\Excel\Concerns\FromCollection;
 // use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -48,7 +49,33 @@ class ProjectExport implements FromCollection, ShouldAutoSize, WithEvents, WithD
 
     public function collection()
     {
-        return Project::all();
+        $project = Project::all();
+        $useritem = Useritem::all();
+
+        // Combine the user data with order data
+        $data = $project->map(function ($project) {
+            return [
+                'order' => $project->order,
+                'perusahaan' => $project->perusahaan,
+                'deskripsi' => $project->deskripsi,
+                'supervisor' => $project->supervisor,
+                'quantity' => $project->quantity,
+                'deadline' => $project->deadline,
+                'status' => $project->status,
+            ];
+        });
+
+        $ordersData = $useritem->map(function ($useritem) {
+            return [
+                'operator_name' => $useritem->operator_name,
+                'type_work' => $useritem->type_work,
+                'machine_no' => $useritem->machine_no,
+                'job_desk' => $useritem->job_desk,
+                'ref' => $useritem->ref,
+            ];
+        });
+
+        return $data->merge($ordersData);
     }
 
     public function registerEvents(): array
