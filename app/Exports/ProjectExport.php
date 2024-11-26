@@ -16,16 +16,11 @@ use Maatwebsite\Excel\Concerns\WithCustomStartCell;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 
-class ProjectExport implements FromCollection, ShouldAutoSize, WithEvents, WithDrawings, WithCustomStartCell, WithColumnWidths
+class ProjectExport implements FromCollection, ShouldAutoSize, WithEvents, WithDrawings, WithColumnWidths
 {
     /**
     * @return \Illuminate\Support\Collection
     */
-
-    public function startCell(): string
-    {
-        return 'A35'; // Set the starting cell to A4
-    }
 
     public function columnWidths(): array
     {
@@ -49,12 +44,13 @@ class ProjectExport implements FromCollection, ShouldAutoSize, WithEvents, WithD
 
     public function collection()
     {
-        $project = Project::all();
-        $useritem = Useritem::all();
+        // Ambil semua data project dengan relasinya
+        $projects = Project::with(['items.useritems'])->get();
 
-        // Combine the user data with order data
-        $data = $project->map(function ($project) {
-            return [
+        // Map data projects ke dalam format yang sesuai
+        $data = $projects->flatMap(function ($project) {
+            // Ambil data project
+            $projectData = [
                 'order' => $project->order,
                 'perusahaan' => $project->perusahaan,
                 'deskripsi' => $project->deskripsi,
@@ -63,30 +59,38 @@ class ProjectExport implements FromCollection, ShouldAutoSize, WithEvents, WithD
                 'deadline' => $project->deadline,
                 'status' => $project->status,
             ];
+
+            // Map data items dan useritems
+            return $project->items->flatMap(function ($item) use ($projectData) {
+                return $item->useritems->map(function ($useritem, $index) use ($projectData, $item) {
+                    return [
+                        'no' => $index + 1,
+                        'type_work' => $useritem->type_work ?? 'N/A',
+                        'ref' => $useritem->ref ?? 'N/A',
+                        'rev' => $useritem->revision ?? 'N/A',
+                        'machine_no' => $useritem->machine_no ?? 'N/A',
+                        'qty' => $useritem->quantity ?? 0,
+                        'inspection' => $useritem->inspection ?? 'N/A',
+                        'operator_name' => $useritem->operator_name ?? 'N/A',
+                        'date' => $useritem->date ?? 'N/A',
+                        'record_no' => $useritem->record_no ?? 'N/A',
+                    ];
+                });
+            });
         });
 
-        $ordersData = $useritem->map(function ($useritem) {
-            return [
-                'operator_name' => $useritem->operator_name,
-                'type_work' => $useritem->type_work,
-                'machine_no' => $useritem->machine_no,
-                'job_desk' => $useritem->job_desk,
-                'ref' => $useritem->ref,
-            ];
-        });
-
-        return $data->merge($ordersData);
+        return collect($data);
     }
+
+
 
     public function registerEvents(): array
     {
         return [
             AfterSheet::class => function (AfterSheet $event) {
-                $projects = $this->collection();
-                $description = $projects->first()->deskripsi ?? 'No description available';
-                $customer = $projects->first()->perusahaan ?? 'No Customer';
-                $quantity = $projects->first()->quantity ?? 'No Quantity';
-                $Job_no = $projects->first()->order ?? 'No Order';
+                $projects = Project::with(['items.useritems'])->get();
+                $project = $projects->first(); // Assuming you want the first project
+
                 // Merge cell ranges
                 $sheet = $event->sheet;
 
@@ -155,6 +159,21 @@ class ProjectExport implements FromCollection, ShouldAutoSize, WithEvents, WithD
                
 
             // Existing functionality here (if any)
+            $rowStart = 13; // Row where data starts
+            foreach ($this->collection() as $rowIndex => $data) {
+                $currentRow = $rowStart + $rowIndex; // Dynamically calculate the row number
+                $sheet->setCellValue('B' . $currentRow, $data['no']);
+                $sheet->setCellValue('C' . $currentRow, $data['type_work']);
+                $sheet->setCellValue('E' . $currentRow, $data['ref']);
+                $sheet->setCellValue('G' . $currentRow, $data['rev']);
+                $sheet->setCellValue('H' . $currentRow, $data['machine_no']);
+                $sheet->setCellValue('I' . $currentRow, $data['qty']);
+                $sheet->setCellValue('J' . $currentRow, $data['inspection']);
+                $sheet->setCellValue('K' . $currentRow, $data['operator_name']);
+                $sheet->setCellValue('L' . $currentRow, $data['date']);
+                $sheet->setCellValue('M' . $currentRow, $data['record_no']);
+            }
+            
             
             // Merge cells B2 to N2
             $sheet->mergeCells('B2:N2');
@@ -175,10 +194,10 @@ class ProjectExport implements FromCollection, ShouldAutoSize, WithEvents, WithD
             $sheet->getStyle('A1:N33')->getFont()->setSize(12);
             
 
-            $sheet->setCellValue('B4', 'Description : '. $description);
+            $sheet->setCellValue('B4', 'Description : '. ($project->deskripsi ?? 'N/A'));
             $sheet->getStyle('B4')->getAlignment()->setWrapText(true);
-            $sheet->setCellValue('B6', 'Job No. :' . $Job_no);
-            $sheet->setCellValue('B7', 'Customer : ' . $customer);
+            $sheet->setCellValue('B6', 'Job No. :' .($project->order ?? 'N/A'));
+            $sheet->setCellValue('B7', 'Customer : ' . ($project->perusahaan ?? 'N/A'));
             $sheet->setCellValue('B8', 'Sample :');
             $sheet->setCellValue('F4', 'Marking No. :');
             $sheet->setCellValue('H5', 'P/N :');
@@ -193,7 +212,7 @@ class ProjectExport implements FromCollection, ShouldAutoSize, WithEvents, WithD
             $sheet->setCellValue('L8', 'Delivery Date');
             $sheet->setCellValue('M4', ':');
             $sheet->setCellValue('M5', ':');
-            $sheet->setCellValue('M6', ': ' . $quantity .' Ea');
+            $sheet->setCellValue('M6', ': ' . (($project->quantity ?? 'N/A') . ' Ea'));
             $sheet->setCellValue('M7', ':');
             $sheet->setCellValue('M8', ':');
 
