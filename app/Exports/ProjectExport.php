@@ -4,6 +4,7 @@ namespace App\Exports;
 
 use App\Models\Project;
 use App\Models\Useritem;
+use Illuminate\Database\Eloquent\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
 // use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -21,6 +22,7 @@ class ProjectExport implements FromCollection, ShouldAutoSize, WithEvents, WithD
     /**
     * @return \Illuminate\Support\Collection
     */
+
 
     public function columnWidths(): array
     {
@@ -42,45 +44,84 @@ class ProjectExport implements FromCollection, ShouldAutoSize, WithEvents, WithD
         ];
     }
 
-    public function collection()
-    {
-        // Ambil semua data project dengan relasinya
-        $projects = Project::with(['items.useritems'])->get();
+    protected $selectedIds;
 
-        // Map data projects ke dalam format yang sesuai
-        $data = $projects->flatMap(function ($project) {
-            // Ambil data project
-            $projectData = [
-                'order' => $project->order,
-                'perusahaan' => $project->perusahaan,
-                'deskripsi' => $project->deskripsi,
-                'supervisor' => $project->supervisor,
-                'quantity' => $project->quantity,
-                'deadline' => $project->deadline,
-                'status' => $project->status,
-            ];
+// Constructor to accept selected project IDs
+public function __construct(array $selectedIds = [])
+{
+    $this->selectedIds = $selectedIds;
+}
 
-            // Map data items dan useritems
-            return $project->items->flatMap(function ($item) use ($projectData) {
-                return $item->useritems->map(function ($useritem, $index) use ($projectData, $item) {
-                    return [
-                        'no' => $index + 1,
-                        'type_work' => $useritem->type_work ?? 'N/A',
-                        'ref' => $useritem->ref ?? 'N/A',
-                        'rev' => $useritem->revision ?? 'N/A',
-                        'machine_no' => $useritem->machine_no ?? 'N/A',
-                        'qty' => $useritem->quantity ?? 0,
-                        'inspection' => $useritem->inspection ?? 'N/A',
-                        'operator_name' => $useritem->operator_name ?? 'N/A',
-                        'date' => $useritem->date ?? 'N/A',
-                        'record_no' => $useritem->record_no ?? 'N/A',
-                    ];
-                });
-            });
-        });
 
-        return collect($data);
+public function collection()
+{
+    // Start query for projects
+    // $query = Project::with(['items.useritems']);
+
+    // // If selected IDs are provided, filter projects by those IDs
+    // if (!empty($this->selectedIds)) {
+    //     $query->whereIn('id', $this->selectedIds);
+    // }
+
+    // // Fetch the projects with the relevant relationships
+    // $projects = $query->get();
+
+    // // Map data projects into the desired format
+    // $data = $projects->flatMap(function ($project) {
+    //     // Extract project data
+    //     $projectData = [
+    //         'order' => $project->order,
+    //         'perusahaan' => $project->perusahaan,
+    //         'deskripsi' => $project->deskripsi,
+    //         'supervisor' => $project->supervisor,
+    //         'quantity' => $project->quantity,
+    //         'deadline' => $project->deadline,
+    //         'status' => $project->status,
+    //     ];
+
+    //     // Map items and useritems data
+    //     return $project->items->flatMap(function ($item) use ($projectData) {
+    //         return $item->useritems->map(function ($useritem, $index) use ($projectData, $item) {
+    //             return [
+    //                 'no' => $index + 1,
+    //                 'type_work' => $useritem->type_work ?? 'N/A',
+    //                 'ref' => $useritem->ref ?? 'N/A',
+    //                 'rev' => $useritem->revision ?? 'N/A',
+    //                 'machine_no' => $useritem->machine_no ?? 'N/A',
+    //                 'qty' => $useritem->quantity ?? 0,
+    //                 'inspection' => $useritem->inspection ?? 'N/A',
+    //                 'operator_name' => $useritem->operator_name ?? 'N/A',
+    //                 'date' => $useritem->date ?? 'N/A',
+    //                 'record_no' => $useritem->record_no ?? 'N/A',
+    //             ];
+    //         });
+    //     });
+    // });
+
+    // return collect($data);
+
+    // if (empty($this->selectedIds)) {
+    //     return Project::select('id','order', 'perusahaan', 'deskripsi', 'supervisor', 'quantity', 'deadline', 'status')->get();
+    // }
+
+    // return Project::whereIn('id',$this->selectedIds)
+    //                 ->select('id','order', 'perusahaan', 'deskripsi', 'supervisor', 'quantity', 'deadline', 'status')
+    //                 ->get();
+
+    if (empty($this->selectedIds)) {
+        // No filter, get all projects with related items, and their useritems
+        return Project::with(['items.useritems']) // Eager load the related useritems of each item
+                      ->select('id', 'order', 'perusahaan', 'deskripsi', 'supervisor', 'quantity', 'deadline', 'status')
+                      ->get();
     }
+
+    // If selectedIds are provided, only fetch the selected projects with their related manager (useritems)
+    return Project::whereIn('id', $this->selectedIds)
+                  ->with(['items.useritems']) // Eager load related useritems of each item
+                  ->select('id', 'order', 'perusahaan', 'deskripsi', 'supervisor', 'quantity', 'deadline', 'status')
+                  ->get();
+}
+
 
 
 
@@ -90,9 +131,23 @@ class ProjectExport implements FromCollection, ShouldAutoSize, WithEvents, WithD
             AfterSheet::class => function (AfterSheet $event) {
                 $projects = Project::with(['items.useritems'])->get();
                 $project = $projects->first(); // Assuming you want the first project
+                $projects = $this->collection();
 
                 // Merge cell ranges
                 $sheet = $event->sheet;
+
+                // chatgpt
+                foreach ($projects as $project) {
+                    foreach ($project->items as $item) {
+                        foreach ($item->useritems as $userItem) {
+                            // Access the manager's data (operator_name, for example)
+                            $managerName = $userItem->operator_name ?? 'N/A'; // Default to 'N/A' if operator_name is null
+                
+                            // Now, you can use the $managerName in your sheet or other logic
+                            $sheet->setCellValue('O8', 'Manager : ' . $managerName); // Example usage in Excel sheet
+                        }
+                    }
+                }
 
                 $mergeRanges = [
                     'B4:E5', 'F4:K4', 'F8:H8', 'I8:K8',
@@ -193,11 +248,21 @@ class ProjectExport implements FromCollection, ShouldAutoSize, WithEvents, WithD
             $sheet->getStyle('A1:N33')->getFont()->setName('Times New Roman');
             $sheet->getStyle('A1:N33')->getFont()->setSize(12);
             
-
-            $sheet->setCellValue('B4', 'Description : '. ($project->deskripsi ?? 'N/A'));
+            foreach ($projects as $index => $project) {
+                // Set values in the Excel sheet for each project
+                $sheet->setCellValue('B4', 'Description : ' . ($project->deskripsi ?? 'N/A'));
+                $sheet->setCellValue('B6', 'Job No. : ' . ($project->order ?? 'N/A'));
+                $sheet->setCellValue('B7', 'Customer : ' . ($project->perusahaan ?? 'N/A'));
+                $sheet->setCellValue('M6', ': ' . (($project->quantity ?? 'N/A') . ' Ea'));
+            
+                // Adjust the row/column indices as needed for each project
+                // For example, if you're starting at row 5, increment the row index for each project
+                // $row = 5 + $index; // Adjust row number as needed
+                // $sheet->setCellValue('A' . $row, $project->id); // Example to set project ID at column A
+            }
+            
             $sheet->getStyle('B4')->getAlignment()->setWrapText(true);
-            $sheet->setCellValue('B6', 'Job No. :' .($project->order ?? 'N/A'));
-            $sheet->setCellValue('B7', 'Customer : ' . ($project->perusahaan ?? 'N/A'));
+            
             $sheet->setCellValue('B8', 'Sample :');
             $sheet->setCellValue('F4', 'Marking No. :');
             $sheet->setCellValue('H5', 'P/N :');
@@ -212,7 +277,7 @@ class ProjectExport implements FromCollection, ShouldAutoSize, WithEvents, WithD
             $sheet->setCellValue('L8', 'Delivery Date');
             $sheet->setCellValue('M4', ':');
             $sheet->setCellValue('M5', ':');
-            $sheet->setCellValue('M6', ': ' . (($project->quantity ?? 'N/A') . ' Ea'));
+            
             $sheet->setCellValue('M7', ':');
             $sheet->setCellValue('M8', ':');
 

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Exports\ProjectExport;
 use App\Filament\Exports\ProjectExporter;
 use App\Filament\Resources\ProjectResource\Pages;
 use App\Filament\Resources\ProjectResource\RelationManagers;
@@ -31,6 +32,8 @@ use Filament\Actions\Exports\Enums\ExportFormat;
 use function Pest\Laravel\session;
 
 use Filament\Actions\DeleteAction;
+use Maatwebsite\Excel\Facades\Excel;
+
 
 class ProjectResource extends Resource
 {
@@ -133,7 +136,18 @@ class ProjectResource extends Resource
                     }),
             ])
             ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
                 Tables\Actions\DeleteBulkAction::make(),
+                Tables\Actions\BulkAction::make('Export Selected')
+                ->action(function ($records) {
+                    // Get the selected record IDs
+                    $selectedIds = $records->pluck('id')->toArray();
+
+                    // Export the selected categories
+                    return Excel::download(new ProjectExport($selectedIds), 'Project-selected.xlsx');
+                })
+                ->icon('heroicon-o-arrow-down-on-square'),
+            ]),
             ]);
     }
 
