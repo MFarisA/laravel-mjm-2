@@ -2,7 +2,10 @@
 
 namespace App\Filament\Resources\ProjectResource\RelationManagers;
 
-use App\Exports\ProjectExport;
+use App\Exports\ItemExport;
+use App\Models\Item;
+use App\Models\Project;
+use App\Models\Useritem;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -49,6 +52,12 @@ class ItemsRelationManager extends RelationManager
                 Tables\Actions\CreateAction::make()
             ])
             ->actions([
+                Tables\Actions\Action::make('Export')
+                    ->label('Print')
+                    ->action(function (Item $record) {
+                        return Excel::download(new ItemExport([$record->id]), 'Item-' . $record->id .'-'. $record->name . '.xlsx');
+                    })
+                    ->icon('heroicon-o-arrow-down-on-square'),
                 Tables\Actions\Action::make('view')
                     ->label('View')
                     ->url(fn ($record) => ItemResource::getUrl('view', ['record' => $record->id]))
@@ -61,15 +70,6 @@ class ItemsRelationManager extends RelationManager
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                 Tables\Actions\DeleteBulkAction::make(),
-                Tables\Actions\BulkAction::make('Export Selected')
-                ->action(function ($records) {
-                    // Get the selected record IDs
-                    $selectedIds = $records->pluck('id')->toArray();
-
-                    // Export the selected categories
-                    return Excel::download(new ProjectExport($selectedIds), 'Project-selected.xlsx');
-                })
-                ->icon('heroicon-o-arrow-down-on-square'),
             ]),
             ]);
     }

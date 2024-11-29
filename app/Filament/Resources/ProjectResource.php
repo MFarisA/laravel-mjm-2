@@ -128,7 +128,7 @@ class ProjectResource extends Resource
                     ->label('Print')
                     ->action(function (Project $record) {
                         // Export the single project, not selected records
-                        return Excel::download(new ProjectExport([$record->id]), 'Project-' . $record->id . '.xlsx');
+                        return Excel::download(new ProjectExport([$record->id]), 'Project-' . $record->id . '-' .$record->perusahaan. '.xlsx');
                     })
                     ->icon('heroicon-o-arrow-down-on-square'),
                 Tables\Actions\EditAction::make(),
@@ -146,15 +146,6 @@ class ProjectResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                 Tables\Actions\DeleteBulkAction::make(),
-                Tables\Actions\BulkAction::make('Export Selected')
-                ->action(function ($records) {
-                    // Get the selected record IDs
-                    $selectedIds = $records->pluck('id')->toArray();
-
-                    // Export the selected categories
-                    return Excel::download(new ProjectExport($selectedIds), 'Project-selected.xlsx');
-                })
-                ->icon('heroicon-o-arrow-down-on-square'),
             ]),
             ]);
     }

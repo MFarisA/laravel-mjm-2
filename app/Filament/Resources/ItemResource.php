@@ -13,6 +13,8 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use App\Models\User;
 use Filament\Actions\DeleteAction;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\ItemExport;
 
 use App\Filament\Resources\ItemResource\RelationManagers;
 
@@ -74,6 +76,12 @@ class ItemResource extends Resource
                 //
             ])
             ->actions([
+                Tables\Actions\Action::make('Export')
+                    ->label('Print')
+                    ->action(function (Item $record) {
+                        return Excel::download(new ItemExport([$record->id]), 'Item-' . $record->id .'-'. $record->name . '.xlsx');
+                    })
+                    ->icon('heroicon-o-arrow-down-on-square'),
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])
