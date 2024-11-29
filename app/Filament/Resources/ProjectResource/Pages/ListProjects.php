@@ -17,14 +17,14 @@ class ListProjects extends ListRecords
     {
         return [
             Actions\CreateAction::make(),
-            Action::make('export')
-                ->label('Export')
-                ->icon('bi-filetype-xlsx')
-                ->color('warning')
-                ->requiresConfirmation()
-                ->action(function () {
-                    return Excel::download(new ProjectExport, 'Project.xlsx');
-                }),
+            // Action::make('export')
+            //     ->label('Export')
+            //     ->icon('bi-filetype-xlsx')
+            //     ->color('warning')
+            //     ->requiresConfirmation()
+            //     ->action(function () {
+            //         return Excel::download(new ProjectExport, 'Project.xlsx');
+            //     }),
         ];
     }
 
