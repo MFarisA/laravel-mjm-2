@@ -16,7 +16,6 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 use Maatwebsite\Excel\Concerns\WithCustomStartCell;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
-
 class ProjectExport implements FromCollection, ShouldAutoSize, WithEvents, WithDrawings, WithColumnWidths
 {
     /**
@@ -110,16 +109,63 @@ public function collection()
 
     if (empty($this->selectedIds)) {
         // No filter, get all projects with related items, and their useritems
-        return Project::with(['items.useritems']) // Eager load the related useritems of each item
+        $projects = Project::with(['items.useritems']) // Eager load the related useritems of each item
                       ->select('id', 'order', 'perusahaan', 'deskripsi', 'supervisor', 'quantity', 'deadline', 'status')
                       ->get();
-    }
-
-    // If selectedIds are provided, only fetch the selected projects with their related manager (useritems)
-    return Project::whereIn('id', $this->selectedIds)
+    }else{
+        $projects = Project::whereIn('id', $this->selectedIds)
                   ->with(['items.useritems']) // Eager load related useritems of each item
                   ->select('id', 'order', 'perusahaan', 'deskripsi', 'supervisor', 'quantity', 'deadline', 'status')
                   ->get();
+    }
+
+    // If selectedIds are provided, only fetch the selected projects with their related manager (useritems) 
+
+    // if (empty($this->selectedIds)) {
+    //     $projects = Project::with(['items.useritems'])
+    //                        ->select('id', 'order', 'perusahaan', 'deskripsi', 'supervisor', 'quantity', 'deadline', 'status')
+    //                        ->get();
+    // } else {
+    //     // Jika selectedIds tidak kosong, ambil proyek yang dipilih beserta item dan useritems-nya
+    //     $projects = Project::whereIn('id', $this->selectedIds)
+    //                        ->with(['items.useritems'])
+    //                        ->select('id', 'order', 'perusahaan', 'deskripsi', 'supervisor', 'quantity', 'deadline', 'status')
+    //                        ->get();
+    // }
+
+    // Map data projects ke dalam format yang sesuai
+    $data = $projects->flatMap(function ($project) {
+        // Ambil data project
+        $projectData = [
+            'order' => $project->order,
+            'perusahaan' => $project->perusahaan,
+            'deskripsi' => $project->deskripsi,
+            'supervisor' => $project->supervisor,
+            'quantity' => $project->quantity,
+            'deadline' => $project->deadline,
+            'status' => $project->status,
+        ];
+
+        // Map data items dan useritems
+        return $project->items->flatMap(function ($item) use ($projectData) {
+            return $item->useritems->map(function ($useritem, $index) use ($projectData, $item) {
+                return [
+                    'no' => $index + 1,
+                    'type_work' => $useritem->type_work ?? 'N/A',
+                    'ref' => $useritem->ref ?? 'N/A',
+                    'rev' => $useritem->revision ?? 'N/A',
+                    'machine_no' => $useritem->machine_no ?? 'N/A',
+                    'qty' => $useritem->quantity ?? 0,
+                    'inspection' => $useritem->inspection ?? 'N/A',
+                    'operator_name' => $useritem->operator_name ?? 'N/A',
+                    'date' => $useritem->date ?? 'N/A',
+                    'record_no' => $useritem->record_no ?? 'N/A',
+                ];
+            });
+        });
+    });
+
+    return collect($data);
 }
 
 
@@ -132,22 +178,12 @@ public function collection()
                 $projects = Project::with(['items.useritems'])->get();
                 $project = $projects->first(); // Assuming you want the first project
                 $projects = $this->collection();
-
+                
                 // Merge cell ranges
                 $sheet = $event->sheet;
 
                 // chatgpt
-                foreach ($projects as $project) {
-                    foreach ($project->items as $item) {
-                        foreach ($item->useritems as $userItem) {
-                            // Access the manager's data (operator_name, for example)
-                            $managerName = $userItem->operator_name ?? 'N/A'; // Default to 'N/A' if operator_name is null
                 
-                            // Now, you can use the $managerName in your sheet or other logic
-                            $sheet->setCellValue('O8', 'Manager : ' . $managerName); // Example usage in Excel sheet
-                        }
-                    }
-                }
 
                 $mergeRanges = [
                     'B4:E5', 'F4:K4', 'F8:H8', 'I8:K8',
@@ -216,7 +252,9 @@ public function collection()
             // Existing functionality here (if any)
             $rowStart = 13; // Row where data starts
             foreach ($this->collection() as $rowIndex => $data) {
-                $currentRow = $rowStart + $rowIndex; // Dynamically calculate the row number
+                $currentRow = $rowStart + $rowIndex; // Menyesuaikan nomor baris
+            
+                // Mengisi nilai pada kolom yang sesuai dengan data yang ada
                 $sheet->setCellValue('B' . $currentRow, $data['no']);
                 $sheet->setCellValue('C' . $currentRow, $data['type_work']);
                 $sheet->setCellValue('E' . $currentRow, $data['ref']);
@@ -224,10 +262,11 @@ public function collection()
                 $sheet->setCellValue('H' . $currentRow, $data['machine_no']);
                 $sheet->setCellValue('I' . $currentRow, $data['qty']);
                 $sheet->setCellValue('J' . $currentRow, $data['inspection']);
-                $sheet->setCellValue('K' . $currentRow, $data['operator_name']);
+                $sheet->setCellValue('K' . $currentRow, $data['operator_name']);  // Menyesuaikan kolom untuk nama operator
                 $sheet->setCellValue('L' . $currentRow, $data['date']);
                 $sheet->setCellValue('M' . $currentRow, $data['record_no']);
             }
+            
             
             
             // Merge cells B2 to N2
