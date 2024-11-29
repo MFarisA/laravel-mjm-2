@@ -27,6 +27,7 @@ use Filament\Infolists\Infolist;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Components\ImageEntry;
 use Filament\Tables\Actions\ExportAction;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\ExportBulkAction;
 use Filament\Actions\Exports\Enums\ExportFormat;
 use function Pest\Laravel\session;
@@ -123,6 +124,13 @@ class ProjectResource extends Resource
             ])
             ->headerActions([])
             ->actions([
+                Action::make('Export')
+                    ->label('Print')
+                    ->action(function (Project $record) {
+                        // Export the single project, not selected records
+                        return Excel::download(new ProjectExport([$record->id]), 'Project-' . $record->id . '.xlsx');
+                    })
+                    ->icon('heroicon-o-arrow-down-on-square'),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\DeleteAction::make()
