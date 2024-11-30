@@ -17,7 +17,8 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 use Maatwebsite\Excel\Concerns\WithCustomStartCell;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
-class ItemExport implements FromCollection, ShouldAutoSize, WithEvents, WithDrawings, WithColumnWidths
+
+class ItemExport implements FromCollection, ShouldAutoSize, WithEvents, WithDrawings, WithColumnWidths, WithCustomStartCell
 {
     /**
     * @return \Illuminate\Support\Collection
@@ -41,6 +42,11 @@ class ItemExport implements FromCollection, ShouldAutoSize, WithEvents, WithDraw
             'M' => 10.14,
             'N' => 21.57,          
         ];
+    }
+
+    public function startCell(): string
+    {
+        return 'B13';
     }
 
     protected $selectedIds;
@@ -105,17 +111,25 @@ class ItemExport implements FromCollection, ShouldAutoSize, WithEvents, WithDraw
                 $sheet = $event->sheet;
 
                 $mergeRanges = [
+                    // bagian atas
                     'B4:E5', 'F4:K4', 'F8:H8', 'I8:K8',
-                    'B10:N10', 'B11:B12', 'B30:C33',
-                    'C11:D12', 'C13:D13', 'C14:D14', 'C15:D15', 'C16:D16', 'C17:D17', 'C18:D18',
-                    'C19:D19', 'C20:D20', 'C21:D21', 'C22:D22', 'C23:D23', 'C24:D24', 'C25:D25', 
-                    'C26:D26', 'C27:D27', 'C28:D28', 'E11:F12', 'E13:F13', 'E14:F14', 'E15:F15',
+                    'B10:N10', 'B11:B12',
+                    'C11:D12', 'E11:F12', 'G11:G12',
+                    'H11:H12', 'I11:I12', 'K11:K12', 'L11:L12', 'M11:N12', 
+                     
+                    // tengah
+                    'E13:F13', 'E14:F14', 'E15:F15',
                     'E16:F16', 'E17:F17', 'E18:F18', 'E19:F19', 'E20:F20', 'E21:F21', 'E22:F22',
-                    'E23:F23', 'E24:F24', 'E25:F25', 'E26:F26', 'E27:F27', 'E28:F28', 'G11:G12',
-                    'H11:H12', 'I11:I12', 'K11:K12', 'L11:L12', 'M11:N12', 'M13:N13', 'M14:N14',
+                    'E23:F23', 'E24:F24', 'E25:F25', 'E26:F26', 'E27:F27', 'E28:F28',
+                    'M13:N13', 'M14:N14',
                     'M15:N15', 'M16:N16', 'M17:N17', 'M18:N18', 'M19:N19', 'M20:N20', 'M21:N21',
                     'M22:N22', 'M23:N23', 'M24:N24', 'M25:N25', 'M26:N26', 'M27:N27', 'M28:N28',
-                    'K29:N29', 'K30:L30', 'M34:N34',
+
+                    'C13:D13', 'C14:D14', 'C15:D15', 'C16:D16', 'C17:D17', 'C18:D18',
+                    'C19:D19', 'C20:D20', 'C21:D21', 'C22:D22', 'C23:D23', 'C24:D24', 'C25:D25', 
+                    'C26:D26', 'C27:D27', 'C28:D28',
+                    // bawah
+                    'B30:C33','K29:N29', 'K30:L30',
                 ];
 
                 foreach ($mergeRanges as $range) {
@@ -137,8 +151,12 @@ class ItemExport implements FromCollection, ShouldAutoSize, WithEvents, WithDraw
                     'B4:E5', 'B6:E6', 'B7:E7', 'B8:E8', 'F4:K4', 'F5:K5', 'F6:K6', 'F7:K7', 'F8:K8',
                     'L4:N4', 'L5:N5', 'L6:N6', 'L7:N7', 'L8:N8', 'B10:N10',
                     'B11:B12', 'C11:D12', 'E11:F12', 'G11:G12', 'H11:H12', 'I11:I12', 'K11:K12',
-                    'L11:L12', 'M11:N12', 'B13:B28', 'C13:D28', 'E13:F28', 'G13:G28', 'H13:H28',
-                    'I13:I28', 'J13:J28', 'K13:K28', 'L13:L28', 'M13:N28', 'B29:N33', 'K30:L30',
+                    'L11:L12', 'M11:N12', 
+                    
+                    'B13:B28', 'C13:D28', 'E13:F28', 'G13:G28', 'H13:H28',
+                    'I13:I28', 'J13:J28', 'K13:K28', 'L13:L28', 'M13:N28', 
+                    
+                    'B29:N33', 'K30:L30',
                     'M30', 'N30', 'K31:L33', 'M31:M33', 'N31:N33',
                 ];
 
