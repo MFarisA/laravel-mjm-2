@@ -48,76 +48,72 @@ class ProjectExport implements FromCollection, ShouldAutoSize, WithEvents, WithD
     {
         return 'B13';
     }
-
-    protected $selectedIds;
-
-// Constructor to accept selected project IDs
-public function __construct(array $selectedIds = [])
-{
-    $this->selectedIds = $selectedIds;
-}
-
-
-public function collection()
-{
     
-    if (empty($this->selectedIds)) {
-        // No filter, get all projects with related items, and their useritems
-        $projects = Project::with(['items.useritems']) // Eager load the related useritems of each item
-                      ->select('id', 'order', 'perusahaan', 'deskripsi', 'supervisor', 'quantity', 'deadline', 'status')
-                      ->get();
-    }else{
-        $projects = Project::whereIn('id', $this->selectedIds)
-                  ->with(['items.useritems']) // Eager load related useritems of each item
-                  ->select('id', 'order', 'perusahaan', 'deskripsi', 'supervisor', 'quantity', 'deadline', 'status')
-                  ->get();
+    protected $selectedProjectIds;
+    
+    // Constructor to accept selected project IDs
+    public function __construct(array $selectedProjectIds = [])
+    {
+        $this->selectedProjectIds = $selectedProjectIds;
     }
-
-
-    // Map data projects ke dalam format yang sesuai
-    $data = $projects->flatMap(function ($project) {
-        // Ambil data project
-        $projectData = [
-            'order' => $project->order,
-            'perusahaan' => $project->perusahaan,
-            'deskripsi' => $project->deskripsi,
-            'supervisor' => $project->supervisor,
-            'quantity' => $project->quantity,
-            'deadline' => $project->deadline,
-            'status' => $project->status,
-        ];
-
-        // Map data items dan useritems
-        return $project->items->flatMap(function ($item) use ($projectData) {
-            return $item->useritems->map(function ($useritem, $index) use ($projectData, $item) {
-                return [
-                    'no' => $index + 1,
-                    'type_work' => $useritem->type_work ?? 'N/A',
-                    'ref' => $useritem->ref ?? 'N/A',
-                    'rev' => $useritem->revision ?? 'N/A',
-                    'machine_no' => $useritem->machine_no ?? 'N/A',
-                    'qty' => $useritem->quantity ?? 0,
-                    'inspection' => $useritem->inspection ?? 'N/A',
-                    'operator_name' => $useritem->operator_name ?? 'N/A',
-                    'date' => $useritem->date ?? 'N/A',
-                    'record_no' => $useritem->record_no ?? 'N/A',
+    
+    public function collection()
+    {
+        // Query the projects with their items and useritems
+        $projects = Project::whereIn('id', $this->selectedProjectIds)
+            ->with(['items.useritems']) // Eager load items and their related useritems
+            ->select('id', 'name', 'description','quantity'.'deadline' ,'status','voc') // Select project fields
+            ->get();
+    
+        $data = $projects->flatMap(function ($project) {
+            // Map items in the project
+            return $project->items->flatMap(function ($item) use ($project) {
+                // Get item data
+                $itemData = [
+                    'project_name' => $project->perusahaan,
+                    'project_description' => $project->deskripsi,
+                    'project_status' => $project->status,
+                    'deadline' => $project->deadline,
+                    'quantity' => $project->quantity,
+                    'voc' => $project->voc,
+                    'item_name' => $item->name,
+                    'item_description' => $item->description,
+                    'status' => $item->status,
                 ];
+    
+                // Map useritems related to each item
+                return $item->useritems->map(function ($useritem, $index) use ($itemData) {
+                    return [
+                        'no' => $index + 1,
+                        'type_work' => $useritem->type_work ?? 'N/A',
+                        'ref' => $useritem->ref ?? 'N/A',
+                        'rev' => $useritem->revision ?? 'N/A',
+                        'machine_no' => $useritem->machine_no ?? 'N/A',
+                        'qty' => $useritem->qty ?? 0,
+                        'inspection' => $useritem->inspection ?? ' ',
+                        'operator_name' => $useritem->operator_name ?? ' ',
+                        'date' => $useritem->date ?? ' ',
+                        'record_no' => $useritem->record_no ?? ' ',
+                        'project_name' => $itemData['project_name'],
+                        'project_description' => $itemData['project_description'],
+                        'project_status' => $itemData['project_status'],
+                        'deadline' => $itemData['deadline'],
+                        'quantity' => $itemData['quantity'],
+                        'status' => $itemData['status'],
+                    ];
+                });
             });
         });
-    });
-
-    return collect($data);
-}
-
-
-
+    
+        return collect($data);
+    }    
 
     public function registerEvents(): array
     {
         return [
             AfterSheet::class => function (AfterSheet $event) {
-                $projects = Project::with(['items.useritems'])->get();
-                $project = $projects->first(); // Assuming you want the first project
+                $projects = Project::with(['items.useritems'])->whereIn('id', $this->selectedProjectIds)->get();
+                $project = $projects->first(); 
                 $projects = $this->collection();
                 
                 // Merge cell ranges
@@ -133,7 +129,6 @@ public function collection()
                     'B10:N10', 'B11:B12',
                     'C11:D12', 'E11:F12', 'G11:G12',
                     'H11:H12', 'I11:I12', 'K11:K12', 'L11:L12', 'M11:N12', 
-                     
 
                     // tengah
                     'E13:F13', 'E14:F14', 'E15:F15',
@@ -203,8 +198,20 @@ public function collection()
                     }
                 }
 
-               
-
+            $projects = Project::with(['items.useritems'])->whereIn('id', $this->selectedProjectIds)->get();
+            if ($projects->isEmpty()) {
+                $sheet->setCellValue('B4', 'No project found');
+                return;
+            }
+                
+            foreach ($projects as $project) {
+                $sheet->setCellValue('B4', 'Description : ' . ($project->deskripsi ?? 'N/A'));
+                $sheet->setCellValue('B6', 'Job No. : ' . ($project->order ?? 'N/A'));
+                $sheet->setCellValue('B7', 'Customer : ' . ($project->perusahaan ?? 'N/A'));
+                $sheet->setCellValue('M6', ': ' . ($project->quantity ?? 'N/A'));
+                $sheet->setCellValue('M7', ': ' . ($project->voc ?? ' '));
+            }
+            
             // Existing functionality here (if any)
             $rowStart = 13; // Row where data starts
             foreach ($this->collection() as $rowIndex => $data) {
@@ -222,8 +229,6 @@ public function collection()
                 $sheet->setCellValue('L' . $currentRow, $data['date']);
                 $sheet->setCellValue('M' . $currentRow, $data['record_no']);
             }
-            
-            
             
             // Merge cells B2 to N2
             $sheet->mergeCells('B2:N2');
@@ -243,19 +248,6 @@ public function collection()
             $sheet->getStyle('A1:N33')->getFont()->setName('Times New Roman');
             $sheet->getStyle('A1:N33')->getFont()->setSize(12);
             
-            foreach ($projects as $index => $project) {
-                // Set values in the Excel sheet for each project
-                $sheet->setCellValue('B4', 'Description : ' . ($project->deskripsi ?? 'N/A'));
-                $sheet->setCellValue('B6', 'Job No. : ' . ($project->order ?? 'N/A'));
-                $sheet->setCellValue('B7', 'Customer : ' . ($project->perusahaan ?? 'N/A'));
-                $sheet->setCellValue('M6', ': ' . (($project->quantity ?? 'N/A') . ' Ea'));
-            
-                // Adjust the row/column indices as needed for each project
-                // For example, if you're starting at row 5, increment the row index for each project
-                // $row = 5 + $index; // Adjust row number as needed
-                // $sheet->setCellValue('A' . $row, $project->id); // Example to set project ID at column A
-            }
-            
             $sheet->getStyle('B4')->getAlignment()->setWrapText(true);
             
             $sheet->setCellValue('B8', 'Sample :');
@@ -273,7 +265,6 @@ public function collection()
             $sheet->setCellValue('M4', ':');
             $sheet->setCellValue('M5', ':');
             
-            $sheet->setCellValue('M7', ':');
             $sheet->setCellValue('M8', ':');
 
             $sheet->setCellValue('B10', 'Production & Inspection');

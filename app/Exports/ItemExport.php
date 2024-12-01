@@ -95,7 +95,7 @@ class ItemExport implements FromCollection, ShouldAutoSize, WithEvents, WithDraw
                 'quantity' => $itemData['quantity'],
                 'status' => $itemData['status'],
                 'voc'=> $itemData['voc'],
-                'project_id' => $itemData['project_id'],
+                // 'project_id' => $itemData['project_id'],
             ];
         });
     });
@@ -222,6 +222,12 @@ class ItemExport implements FromCollection, ShouldAutoSize, WithEvents, WithDraw
             $sheet->getStyle('A1:N33')->getFont()->setName('Times New Roman');
             $sheet->getStyle('A1:N33')->getFont()->setSize(12);
             
+            $projectIds = Item::whereIn('id', $this->selectedIds)
+            ->pluck('project_id')
+            ->unique();
+    
+            $projects = Project::whereIn('id', $projectIds)->get();
+
             foreach ($projects as $index => $project) {
                 // Set values in the Excel sheet for each project
                 $sheet->setCellValue('B4', 'Description : ' . ($project->deskripsi ?? 'N/A'));
