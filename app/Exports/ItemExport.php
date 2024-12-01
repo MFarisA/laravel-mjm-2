@@ -62,7 +62,7 @@ class ItemExport implements FromCollection, ShouldAutoSize, WithEvents, WithDraw
     // Query the items instead of projects
     $items = Item::whereIn('id', $this->selectedIds)
                  ->with(['useritems']) // Eager load related useritems
-                 ->select('id', 'project_id', 'name', 'description', 'quantity', 'status') // Select item fields
+                 ->select('id', 'project_id', 'name', 'description', 'quantity', 'status','voc') // Select item fields
                  ->get();
     
     $data = $items->flatMap(function ($item) {
@@ -72,6 +72,7 @@ class ItemExport implements FromCollection, ShouldAutoSize, WithEvents, WithDraw
             'item_description' => $item->description,
             'quantity' => $item->quantity,
             'status' => $item->status,
+            'voc' => $item->voc,
             'project_id' => $item->project_id, // Including project_id to link back to the project
         ];
 
@@ -83,16 +84,17 @@ class ItemExport implements FromCollection, ShouldAutoSize, WithEvents, WithDraw
                 'ref' => $useritem->ref ?? 'N/A',
                 'rev' => $useritem->revision ?? 'N/A',
                 'machine_no' => $useritem->machine_no ?? 'N/A',
-                'qty' => $useritem->quantity ?? 0,
-                'inspection' => $useritem->inspection ?? 'N/A',
-                'operator_name' => $useritem->operator_name ?? 'N/A',
-                'date' => $useritem->date ?? 'N/A',
-                'record_no' => $useritem->record_no ?? 'N/A',
+                'qty' => $useritem->qty ?? 0,
+                'inspection' => $useritem->inspection ?? ' ',
+                'operator_name' => $useritem->operator_name ?? ' ',
+                'date' => $useritem->date ?? ' ',
+                'record_no' => $useritem->record_no ?? ' ',
                 // Add item data as additional columns
                 'item_name' => $itemData['item_name'],
                 'item_description' => $itemData['item_description'],
                 'quantity' => $itemData['quantity'],
                 'status' => $itemData['status'],
+                'voc'=> $itemData['voc'],
                 'project_id' => $itemData['project_id'],
             ];
         });
@@ -225,8 +227,8 @@ class ItemExport implements FromCollection, ShouldAutoSize, WithEvents, WithDraw
                 $sheet->setCellValue('B4', 'Description : ' . ($project->deskripsi ?? 'N/A'));
                 $sheet->setCellValue('B6', 'Job No. : ' . ($project->order ?? 'N/A'));
                 $sheet->setCellValue('B7', 'Customer : ' . ($project->perusahaan ?? 'N/A'));
-                $sheet->setCellValue('M6', ': ' . (($project->quantity ?? 'N/A') . ' Ea'));
-            
+                $sheet->setCellValue('M6', ': ' . ($project->quantity ?? ' '));
+                $sheet->setCellValue('M7', ': ' . ($project->voc ?? ' '));
                 // Adjust the row/column indices as needed for each project
                 // For example, if you're starting at row 5, increment the row index for each project
                 // $row = 5 + $index; // Adjust row number as needed
@@ -250,7 +252,6 @@ class ItemExport implements FromCollection, ShouldAutoSize, WithEvents, WithDraw
             $sheet->setCellValue('M4', ':');
             $sheet->setCellValue('M5', ':');
             
-            $sheet->setCellValue('M7', ':');
             $sheet->setCellValue('M8', ':');
 
             $sheet->setCellValue('B10', 'Production & Inspection');
