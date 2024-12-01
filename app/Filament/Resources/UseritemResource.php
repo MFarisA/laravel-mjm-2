@@ -53,6 +53,10 @@ class UseritemResource extends Resource
                     ->required(),
                 Forms\Components\TextInput::make('ref')
                     ->required(),
+                Forms\Components\TextInput::make('qty')
+                    ->label('Quantity')
+                    ->numeric()
+                    ->required(),
                 Forms\Components\FileUpload::make('picture')
                     ->required()
                     ->imageEditor()
@@ -84,6 +88,10 @@ class UseritemResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('ref')
                     ->searchable(),
+                Tables\Columns\TextColumn::make('qty')
+                    ->label('Quantity')
+                    ->numeric()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
