@@ -20,6 +20,7 @@ return new class extends Migration
             $table->integer('quantity');
             $table->date('deadline'); 
             $table->string('status');
+            $table->string('voc');
             $table->string('picture');
             $table->timestamps();
         });

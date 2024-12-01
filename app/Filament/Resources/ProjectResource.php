@@ -53,6 +53,8 @@ class ProjectResource extends Resource
                 TextEntry::make('quantity'),
                 TextEntry::make('deadline'),
                 TextEntry::make('status'),
+                TextEntry::make('voc')
+                    ->label('VOC / PO NO'),
                 ImageEntry::make('picture')
                 
             ]);
@@ -74,11 +76,15 @@ class ProjectResource extends Resource
                 Forms\Components\TextInput::make('quantity')
                     ->required()
                     ->numeric(),
+                Forms\Components\TextInput::make('voc')
+                    ->label('VOC / PO NO'),
                 Forms\Components\DatePicker::make('deadline')
-                    ->required(),
+                    ->required()
+                    ->label('Deadline'),
                 Forms\Components\Select::make('status')
                     ->native(false)
                     ->required()
+                    ->label('Status')
                     ->options([
                         'pending' => 'Pending',
                         'ongoing' => 'Ongoing',
@@ -110,6 +116,8 @@ class ProjectResource extends Resource
                 ->sortable(),
             Tables\Columns\TextColumn::make('status')
                 ->searchable(),
+            Tables\Columns\TextColumn::make('voc')
+            ->label('VOC / PO NO'),
             Tables\Columns\TextColumn::make('created_at')
                 ->dateTime()
                 ->sortable()
