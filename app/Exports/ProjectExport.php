@@ -172,23 +172,23 @@ class ProjectExport implements FromCollection, ShouldAutoSize, WithEvents, WithD
             $sheet->setCellValue("D" . ($rowStartBawah - 1), 'Note :');
             $sheet->setCellValue("K". ($rowStartBawah - 1), 'Approved By');
             $sheet->getStyle("K" . ($rowStartBawah - 1))
-      ->getAlignment()
-      ->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+            ->getAlignment()
+            ->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
             $sheet->setCellValue("K{$rowStartBawah}", 'Department');
             $sheet->mergeCells("K{$rowStartBawah}:L{$rowStartBawah}");
             $sheet->getStyle("K{$rowStartBawah}:L{$rowStartBawah}")
-      ->getAlignment()
-      ->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER)
-      ->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+            ->getAlignment()
+            ->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER)
+            ->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
             $sheet->setCellValue("K" . ($rowStartBawah + 1), 'Engineering');
             $sheet->setCellValue("K" . ($rowStartBawah + 2), 'Quality');
             $sheet->setCellValue('K'. ($rowStartBawah + 3), 'Production Control');
             $sheet->setCellValue("M" . ($rowStartBawah), 'Sign');
             $sheet->setCellValue("N" . ($rowStartBawah), 'Date');
             $sheet->getStyle("M" . ($rowStartBawah) . ":N" . ($rowStartBawah))
-      ->getAlignment()
-      ->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER)
-      ->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+            ->getAlignment()
+            ->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER)
+            ->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
 
             
             // Border untuk bagian bawah
@@ -271,7 +271,7 @@ class ProjectExport implements FromCollection, ShouldAutoSize, WithEvents, WithD
             $sheet->setCellValue('E' . $currentRow, $data['ref']);
             // $sheet->setCellValue('G' . $currentRow, $data['rev']);
             $sheet->setCellValue('H' . $currentRow, $data['machine_no']);
-            $sheet->setCellValue('I' . $currentRow, $data['qty']);
+            $sheet->setCellValue('I' . $currentRow, $data['qty'] . 'Ea');
             // $sheet->setCellValue('J' . $currentRow, $data['inspection']);
             // $sheet->setCellValue('K' . $currentRow, $data['operator_name']);  // Menyesuaikan kolom untuk nama operator
             // $sheet->setCellValue('L' . $currentRow, $data['date']);
@@ -347,7 +347,11 @@ class ProjectExport implements FromCollection, ShouldAutoSize, WithEvents, WithD
                 $sheet->setCellValue('B4', 'Description : ' . ($project->deskripsi ?? 'N/A'));
                 $sheet->setCellValue('B6', 'Job No. : ' . ($project->order ?? 'N/A'));
                 $sheet->setCellValue('B7', 'Customer : ' . ($project->perusahaan ?? 'N/A'));
-                $sheet->setCellValue('M6', ': ' . ($project->quantity ?? 'N/A'));
+            
+                // Check if quantity exists, if not, return empty string, otherwise append 'Ea'
+                $quantity = $project->quantity ? $project->quantity . ' Ea' : ' ';
+                $sheet->setCellValue('M6', ': ' . $quantity);
+            
                 $sheet->setCellValue('M7', ': ' . ($project->voc ?? ' '));
             }
         
