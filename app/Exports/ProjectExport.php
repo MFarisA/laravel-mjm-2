@@ -324,18 +324,31 @@ class ProjectExport implements FromCollection, ShouldAutoSize, WithEvents, WithD
         $sheet->getStyle('A1:N33')->getFont()->setName('Times New Roman');
         $sheet->getStyle('A1:N33')->getFont()->setSize(12);
         
-        foreach ($projects as $index => $project) {
-            // Set values in the Excel sheet for each project
-            $sheet->setCellValue('B4', 'Description : ' . ($project->deskripsi ?? 'N/A'));
-            $sheet->setCellValue('B6', 'Job No. : ' . ($project->order ?? 'N/A'));
-            $sheet->setCellValue('B7', 'Customer : ' . ($project->perusahaan ?? 'N/A'));
-            $sheet->setCellValue('M6', ': ' . ($project->quantity ?? ' '));
-            $sheet->setCellValue('M7', ': ' . ($project->voc ?? ' '));
-            // Adjust the row/column indices as needed for each project
-            // For example, if you're starting at row 5, increment the row index for each project
-            // $row = 5 + $index; // Adjust row number as needed
-            // $sheet->setCellValue('A' . $row, $project->id); // Example to set project ID at column A
-        }
+        // foreach ($projects as $index => $project) {
+        //     // Set values in the Excel sheet for each project
+        //     $sheet->setCellValue('B4', 'Description : ' . ($project->deskripsi ?? 'N/A'));
+        //     $sheet->setCellValue('B6', 'Job No. : ' . ($project->order ?? 'N/A'));
+        //     $sheet->setCellValue('B7', 'Customer : ' . ($project->perusahaan ?? 'N/A'));
+        //     $sheet->setCellValue('M6', ': ' . ($project->quantity ?? ' '));
+        //     $sheet->setCellValue('M7', ': ' . ($project->voc ?? ' '));
+        //     // Adjust the row/column indices as needed for each project
+        //     // For example, if you're starting at row 5, increment the row index for each project
+        //     // $row = 5 + $index; // Adjust row number as needed
+        //     // $sheet->setCellValue('A' . $row, $project->id); // Example to set project ID at column A
+        // }
+        $projects = Project::with(['items.useritems'])->whereIn('id', $this->selectedProjectIds)->get();
+            if ($projects->isEmpty()) {
+                $sheet->setCellValue('B4', 'No project found');
+                return;
+            }
+
+            foreach ($projects as $project) {
+                $sheet->setCellValue('B4', 'Description : ' . ($project->deskripsi ?? 'N/A'));
+                $sheet->setCellValue('B6', 'Job No. : ' . ($project->order ?? 'N/A'));
+                $sheet->setCellValue('B7', 'Customer : ' . ($project->perusahaan ?? 'N/A'));
+                $sheet->setCellValue('M6', ': ' . ($project->quantity ?? 'N/A'));
+                $sheet->setCellValue('M7', ': ' . ($project->voc ?? ' '));
+            }
         
         $sheet->getStyle('B4')->getAlignment()->setWrapText(true);
         

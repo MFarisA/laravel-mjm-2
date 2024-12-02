@@ -320,6 +320,12 @@ public function registerEvents(): array
         $sheet->getDefaultColumnDimension()->setWidth(15); // Set a default width for columns
         $sheet->getStyle('A1:N33')->getFont()->setName('Times New Roman');
         $sheet->getStyle('A1:N33')->getFont()->setSize(12);
+
+        $projectIds = Item::whereIn('id', $this->selectedIds)
+            ->pluck('project_id')
+            ->unique();
+
+            $projects = Project::whereIn('id', $projectIds)->get();
         
         foreach ($projects as $index => $project) {
             // Set values in the Excel sheet for each project
