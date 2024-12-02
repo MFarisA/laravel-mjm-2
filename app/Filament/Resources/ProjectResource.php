@@ -74,7 +74,7 @@ class ProjectResource extends Resource
                 Forms\Components\TextInput::make('supervisor')
                     ->required(),
                 Forms\Components\TextInput::make('quantity')
-                    ->required()
+                    // ->required()
                     ->numeric(),
                 Forms\Components\TextInput::make('voc')
                     ->label('VOC / PO NO'),
@@ -117,7 +117,7 @@ class ProjectResource extends Resource
             Tables\Columns\TextColumn::make('status')
                 ->searchable(),
             Tables\Columns\TextColumn::make('voc')
-            ->label('VOC / PO NO'),
+                ->label('VOC / PO NO'),
             Tables\Columns\TextColumn::make('created_at')
                 ->dateTime()
                 ->sortable()

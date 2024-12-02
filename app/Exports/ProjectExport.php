@@ -261,11 +261,12 @@ class ProjectExport implements FromCollection, ShouldAutoSize, WithEvents, WithD
 
         // Existing functionality here (if any)
         $rowStart = 13; // Row where data starts
+        $no=1;
         foreach ($this->collection() as $rowIndex => $data) {
             $currentRow = $rowStart + $rowIndex; // Menyesuaikan nomor baris
 
             // Mengisi nilai pada kolom yang sesuai dengan data yang ada
-            $sheet->setCellValue('B' . $currentRow, $data['no']);
+            $sheet->setCellValue('B' . $currentRow, $no++);
             $sheet->setCellValue('C' . $currentRow, $data['type_work']);
             $sheet->setCellValue('E' . $currentRow, $data['ref']);
             // $sheet->setCellValue('G' . $currentRow, $data['rev']);
