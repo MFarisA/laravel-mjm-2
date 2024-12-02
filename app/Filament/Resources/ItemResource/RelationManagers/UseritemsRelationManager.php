@@ -45,6 +45,7 @@ class UseritemsRelationManager extends RelationManager
                 Forms\Components\TextInput::make('qty')
                     ->label('Quantity')
                     ->numeric()
+                    ->default(0)
                     ->required(),
                 Forms\Components\FileUpload::make('picture')
                     ->required()
