@@ -8,6 +8,9 @@
         "php": "^8.2",
         "althinect/filament-spatie-roles-permissions": "^2.2",
         "bezhansalleh/filament-shield": "3.2.6",
+        "brunocfalcao/blade-feather-icons": "^4.0",
+        "codeat3/blade-carbon-icons": "^2.31",
+        "codeat3/blade-file-icons": "^1.9",
         "davidhsianturi/blade-bootstrap-icons": "^1.5",
         "filament/filament": "^3.2",
         "guava/calendar": "^1.2",
@@ -15,6 +18,7 @@
         "laravel/tinker": "^2.9",
         "psr/simple-cache": "^2.0",
         "pxlrbt/filament-excel": "^2.3",
+        "saade/blade-iconsax": "^1.2",
         "saade/filament-fullcalendar": "^3.0",
         "simplesoftwareio/simple-qrcode": "^4.2",
         "spatie/laravel-permission": "*"

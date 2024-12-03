@@ -40,7 +40,7 @@ class ProjectResource extends Resource
 {
     protected static ?string $model = Project::class;
 
-    protected static ?string $navigationIcon = 'heroicon-c-view-columns';
+    protected static ?string $navigationIcon = 'fileicon-workbox';
 
     public static function infolist(Infolist $infolist): Infolist
     {
