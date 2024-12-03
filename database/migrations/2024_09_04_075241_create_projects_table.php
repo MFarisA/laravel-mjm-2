@@ -17,9 +17,10 @@ return new class extends Migration
             $table->string('perusahaan');
             $table->string('deskripsi');
             $table->string('supervisor');
-            $table->integer('quantity');
+            $table->integer('quantity')->nullable();
             $table->date('deadline'); 
             $table->string('status');
+            $table->string('voc')->nullable();
             $table->string('picture');
             $table->timestamps();
         });

@@ -4,6 +4,7 @@ namespace App\Exports;
 
 use App\Models\Project;
 use App\Models\Useritem;
+use App\Models\Item;
 use Illuminate\Database\Eloquent\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
 // use Maatwebsite\Excel\Concerns\FromCollection;
@@ -17,12 +18,11 @@ use Maatwebsite\Excel\Concerns\WithCustomStartCell;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 
-class ProjectExport implements FromCollection, ShouldAutoSize, WithEvents, WithDrawings, WithColumnWidths, WithCustomStartCell
+class ItemExport implements FromCollection, ShouldAutoSize, WithEvents, WithDrawings, WithColumnWidths, WithCustomStartCell
 {
     /**
     * @return \Illuminate\Support\Collection
     */
-
 
     public function columnWidths(): array
     {
@@ -48,67 +48,64 @@ class ProjectExport implements FromCollection, ShouldAutoSize, WithEvents, WithD
     {
         return 'B13';
     }
-    
-    protected $selectedProjectIds;
-    
-    // Constructor to accept selected project IDs
-    public function __construct(array $selectedProjectIds = [])
-    {
-        $this->selectedProjectIds = $selectedProjectIds;
-    }
-    
-    public function collection()
-    {
-        // Query the projects with their items and useritems
-        $projects = Project::whereIn('id', $this->selectedProjectIds)
-            ->with(['items.useritems']) // Eager load items and their related useritems
-            ->select('id', 'name', 'description','quantity'.'deadline' ,'status','voc') // Select project fields
-            ->get();
-    
-        $data = $projects->flatMap(function ($project) {
-            // Map items in the project
-            return $project->items->flatMap(function ($item) use ($project) {
-                // Get item data
-                $itemData = [
-                    'project_name' => $project->perusahaan,
-                    'project_description' => $project->deskripsi,
-                    'project_status' => $project->status,
-                    'deadline' => $project->deadline,
-                    'quantity' => $project->quantity,
-                    'voc' => $project->voc,
-                    'item_name' => $item->name,
-                    'item_description' => $item->description,
-                    'status' => $item->status,
-                ];
-    
-                // Map useritems related to each item
-                return $item->useritems->map(function ($useritem, $index) use ($itemData) {
-                    return [
-                        'no' => $index + 1,
-                        'type_work' => $useritem->type_work ?? 'N/A',
-                        'ref' => $useritem->ref ?? 'N/A',
-                        // 'rev' => $useritem->revision ?? 'N/A',
-                        'machine_no' => $useritem->machine_no ?? 'N/A',
-                        'qty' => $useritem->qty ?? 0,
-                        // 'inspection' => $useritem->inspection ?? ' ',
-                        // 'operator_name' => $useritem->operator_name ?? ' ',
-                        // 'date' => $useritem->date ?? ' ',
-                        // 'record_no' => $useritem->record_no ?? ' ',
-                        // 'project_name' => $itemData['project_name'],
-                        // 'project_description' => $itemData['project_description'],
-                        // 'project_status' => $itemData['project_status'],
-                        // 'deadline' => $itemData['deadline'],
-                        // 'quantity' => $itemData['quantity'],
-                        // 'status' => $itemData['status'],
-                    ];
-                });
-            });
-        });
-    
-        return collect($data);
-    }    
 
-    public function registerEvents(): array
+    protected $selectedIds;
+
+    // Constructor to accept selected project IDs
+    public function __construct(array $selectedIds = [])
+    {
+        $this->selectedIds = $selectedIds;
+    }
+
+    public function collection()
+{
+    // Query the items instead of projects
+    $items = Item::whereIn('id', $this->selectedIds)
+                 ->with(['useritems']) // Eager load related useritems
+                 ->select('id', 'project_id', 'name', 'description', 'quantity', 'status','voc') // Select item fields
+                 ->get();
+    
+    $data = $items->flatMap(function ($item) {
+        // Get item data
+        $itemData = [
+            'item_name' => $item->name,
+            'item_description' => $item->description,
+            'quantity' => $item->quantity,
+            'status' => $item->status,
+            'voc' => $item->voc,
+            'project_id' => $item->project_id, // Including project_id to link back to the project
+        ];
+
+        // Map useritems related to each item
+        return $item->useritems->map(function ($useritem, $index) use ($itemData) {
+            return [
+                'no' => $index + 1,
+                'type_work' => $useritem->type_work ?? 'N/A',
+                'ref' => $useritem->ref ?? 'N/A',
+                // 'rev' => $useritem->revision ?? 'N/A',
+                'machine_no' => $useritem->machine_no ?? 'N/A',
+                'qty' => $useritem->qty ?? 0,
+                // 'inspection' => $useritem->inspection ?? ' ',
+                // 'operator_name' => $useritem->operator_name ?? ' ',
+                // 'date' => $useritem->date ?? ' ',
+                // 'record_no' => $useritem->record_no ?? ' ',
+                // Add item data as additional columns
+                // 'item_name' => $itemData['item_name'],
+                // 'item_description' => $itemData['item_description'],
+                // 'quantity' => $itemData['quantity'],
+                // 'status' => $itemData['status'],
+                // 'voc'=> $itemData['voc'],
+                // 'project_id' => $itemData['project_id'],
+            ];
+        });
+    });
+
+    return collect($data);
+}
+
+
+
+public function registerEvents(): array
 {
     return [
         AfterSheet::class => function (AfterSheet $event) {
@@ -261,12 +258,11 @@ class ProjectExport implements FromCollection, ShouldAutoSize, WithEvents, WithD
 
         // Existing functionality here (if any)
         $rowStart = 13; // Row where data starts
-        $no=1;
         foreach ($this->collection() as $rowIndex => $data) {
             $currentRow = $rowStart + $rowIndex; // Menyesuaikan nomor baris
 
             // Mengisi nilai pada kolom yang sesuai dengan data yang ada
-            $sheet->setCellValue('B' . $currentRow, $no++);
+            $sheet->setCellValue('B' . $currentRow, $data['no']);
             $sheet->setCellValue('C' . $currentRow, $data['type_work']);
             $sheet->setCellValue('E' . $currentRow, $data['ref']);
             // $sheet->setCellValue('G' . $currentRow, $data['rev']);
@@ -324,36 +320,25 @@ class ProjectExport implements FromCollection, ShouldAutoSize, WithEvents, WithD
         $sheet->getDefaultColumnDimension()->setWidth(15); // Set a default width for columns
         $sheet->getStyle('A1:N33')->getFont()->setName('Times New Roman');
         $sheet->getStyle('A1:N33')->getFont()->setSize(12);
-        
-        // foreach ($projects as $index => $project) {
-        //     // Set values in the Excel sheet for each project
-        //     $sheet->setCellValue('B4', 'Description : ' . ($project->deskripsi ?? 'N/A'));
-        //     $sheet->setCellValue('B6', 'Job No. : ' . ($project->order ?? 'N/A'));
-        //     $sheet->setCellValue('B7', 'Customer : ' . ($project->perusahaan ?? 'N/A'));
-        //     $sheet->setCellValue('M6', ': ' . ($project->quantity ?? ' '));
-        //     $sheet->setCellValue('M7', ': ' . ($project->voc ?? ' '));
-        //     // Adjust the row/column indices as needed for each project
-        //     // For example, if you're starting at row 5, increment the row index for each project
-        //     // $row = 5 + $index; // Adjust row number as needed
-        //     // $sheet->setCellValue('A' . $row, $project->id); // Example to set project ID at column A
-        // }
-        $projects = Project::with(['items.useritems'])->whereIn('id', $this->selectedProjectIds)->get();
-            if ($projects->isEmpty()) {
-                $sheet->setCellValue('B4', 'No project found');
-                return;
-            }
 
-            foreach ($projects as $project) {
-                $sheet->setCellValue('B4', 'Description : ' . ($project->deskripsi ?? 'N/A'));
-                $sheet->setCellValue('B6', 'Job No. : ' . ($project->order ?? 'N/A'));
-                $sheet->setCellValue('B7', 'Customer : ' . ($project->perusahaan ?? 'N/A'));
-            
-                // Check if quantity exists, if not, return empty string, otherwise append 'Ea'
-                $quantity = $project->quantity ? $project->quantity . ' Ea' : ' ';
-                $sheet->setCellValue('M6', ': ' . $quantity);
-            
-                $sheet->setCellValue('M7', ': ' . ($project->voc ?? ' '));
-            }
+        $projectIds = Item::whereIn('id', $this->selectedIds)
+            ->pluck('project_id')
+            ->unique();
+
+            $projects = Project::whereIn('id', $projectIds)->get();
+        
+        foreach ($projects as $index => $project) {
+            // Set values in the Excel sheet for each project
+            $sheet->setCellValue('B4', 'Description : ' . ($project->deskripsi ?? 'N/A'));
+            $sheet->setCellValue('B6', 'Job No. : ' . ($project->order ?? 'N/A'));
+            $sheet->setCellValue('B7', 'Customer : ' . ($project->perusahaan ?? 'N/A'));
+            $sheet->setCellValue('M6', ': ' . ($project->quantity ?? ' '));
+            $sheet->setCellValue('M7', ': ' . ($project->voc ?? ' '));
+            // Adjust the row/column indices as needed for each project
+            // For example, if you're starting at row 5, increment the row index for each project
+            // $row = 5 + $index; // Adjust row number as needed
+            // $sheet->setCellValue('A' . $row, $project->id); // Example to set project ID at column A
+        }
         
         $sheet->getStyle('B4')->getAlignment()->setWrapText(true);
         

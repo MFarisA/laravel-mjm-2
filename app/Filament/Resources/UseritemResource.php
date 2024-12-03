@@ -20,7 +20,7 @@ class UseritemResource extends Resource
 {
     protected static ?string $model = Useritem::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'iconsax-bol-receipt-item';
 
     public static function form(Form $form): Form
     {
@@ -53,6 +53,11 @@ class UseritemResource extends Resource
                     ->required(),
                 Forms\Components\TextInput::make('ref')
                     ->required(),
+                Forms\Components\TextInput::make('qty')
+                    ->label('Quantity')
+                    ->numeric()
+                    ->default(0)
+                    ->required(),
                 Forms\Components\FileUpload::make('picture')
                     ->required()
                     ->imageEditor()
@@ -84,6 +89,10 @@ class UseritemResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('ref')
                     ->searchable(),
+                Tables\Columns\TextColumn::make('qty')
+                    ->label('Quantity')
+                    ->numeric()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -99,6 +108,7 @@ class UseritemResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

@@ -2,6 +2,10 @@
 
 namespace App\Filament\Resources\ProjectResource\RelationManagers;
 
+use App\Exports\ItemExport;
+use App\Models\Item;
+use App\Models\Project;
+use App\Models\Useritem;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -10,6 +14,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\ItemResource;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ItemsRelationManager extends RelationManager
 {
@@ -47,6 +52,12 @@ class ItemsRelationManager extends RelationManager
                 Tables\Actions\CreateAction::make()
             ])
             ->actions([
+                Tables\Actions\Action::make('Export')
+                    ->label('Print')
+                    ->action(function (Item $record) {
+                        return Excel::download(new ItemExport([$record->id]), 'Item-' . $record->id .'-'. $record->name . '.xlsx');
+                    })
+                    ->icon('heroicon-o-arrow-down-on-square'),
                 Tables\Actions\Action::make('view')
                     ->label('View')
                     ->url(fn ($record) => ItemResource::getUrl('view', ['record' => $record->id]))
@@ -57,7 +68,9 @@ class ItemsRelationManager extends RelationManager
                     ->icon('heroicon-o-pencil'),
             ])
             ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
                 Tables\Actions\DeleteBulkAction::make(),
+            ]),
             ]);
     }
 }

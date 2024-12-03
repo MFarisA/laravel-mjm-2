@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Exports\ProjectExport;
 use App\Filament\Exports\ProjectExporter;
 use App\Filament\Resources\ProjectResource\Pages;
 use App\Filament\Resources\ProjectResource\RelationManagers;
@@ -26,17 +27,20 @@ use Filament\Infolists\Infolist;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Components\ImageEntry;
 use Filament\Tables\Actions\ExportAction;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\ExportBulkAction;
 use Filament\Actions\Exports\Enums\ExportFormat;
 use function Pest\Laravel\session;
 
 use Filament\Actions\DeleteAction;
+use Maatwebsite\Excel\Facades\Excel;
+
 
 class ProjectResource extends Resource
 {
     protected static ?string $model = Project::class;
 
-    protected static ?string $navigationIcon = 'heroicon-c-view-columns';
+    protected static ?string $navigationIcon = 'fileicon-workbox';
 
     public static function infolist(Infolist $infolist): Infolist
     {
@@ -49,6 +53,8 @@ class ProjectResource extends Resource
                 TextEntry::make('quantity'),
                 TextEntry::make('deadline'),
                 TextEntry::make('status'),
+                TextEntry::make('voc')
+                    ->label('VOC / PO NO'),
                 ImageEntry::make('picture')
                 
             ]);
@@ -68,13 +74,17 @@ class ProjectResource extends Resource
                 Forms\Components\TextInput::make('supervisor')
                     ->required(),
                 Forms\Components\TextInput::make('quantity')
-                    ->required()
+                    // ->required()
                     ->numeric(),
+                Forms\Components\TextInput::make('voc')
+                    ->label('VOC / PO NO'),
                 Forms\Components\DatePicker::make('deadline')
-                    ->required(),
+                    ->required()
+                    ->label('Deadline'),
                 Forms\Components\Select::make('status')
                     ->native(false)
                     ->required()
+                    ->label('Status')
                     ->options([
                         'pending' => 'Pending',
                         'ongoing' => 'Ongoing',
@@ -106,6 +116,8 @@ class ProjectResource extends Resource
                 ->sortable(),
             Tables\Columns\TextColumn::make('status')
                 ->searchable(),
+            Tables\Columns\TextColumn::make('voc')
+                ->label('VOC / PO NO'),
             Tables\Columns\TextColumn::make('created_at')
                 ->dateTime()
                 ->sortable()
@@ -120,6 +132,13 @@ class ProjectResource extends Resource
             ])
             ->headerActions([])
             ->actions([
+                Action::make('Export')
+                    ->label('Print')
+                    ->action(function (Project $record) {
+                        // Export the single project, not selected records
+                        return Excel::download(new ProjectExport([$record->id]), 'Project-' . $record->id . '-' .$record->perusahaan. '.xlsx');
+                    })
+                    ->icon('heroicon-o-arrow-down-on-square'),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\DeleteAction::make()
@@ -133,7 +152,9 @@ class ProjectResource extends Resource
                     }),
             ])
             ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
                 Tables\Actions\DeleteBulkAction::make(),
+            ]),
             ]);
     }
 

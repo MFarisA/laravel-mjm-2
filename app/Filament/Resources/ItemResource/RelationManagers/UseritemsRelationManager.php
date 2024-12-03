@@ -42,6 +42,11 @@ class UseritemsRelationManager extends RelationManager
                     ->required(),
                 Forms\Components\TextInput::make('ref')
                     ->required(),
+                Forms\Components\TextInput::make('qty')
+                    ->label('Quantity')
+                    ->numeric()
+                    ->default(0)
+                    ->required(),
                 Forms\Components\FileUpload::make('picture')
                     ->required()
                     ->imageEditor()
@@ -67,6 +72,10 @@ class UseritemsRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('job_desk')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('ref'),
+                Tables\Columns\TextColumn::make('qty')
+                    ->label('Quantity')
+                    ->numeric()
+                    ->sortable(),
                 Tables\Columns\ImageColumn::make('picture'),
             ])
             ->filters([
